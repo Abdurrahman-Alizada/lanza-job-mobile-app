@@ -78,6 +78,19 @@ export default function AuthAbbar({ title }) {
         </View>
       </View>
 
+      {/* {title == 'Sign in' || title == 'Reset password' ? (
+        <Text></Text>
+      ) : (
+        <Text
+          style={{
+            fontSize: 22,
+            marginTop: '5%',
+            textAlign: 'center',
+          }}>
+          {t(title)}
+        </Text>
+      )
+      } */}
     </Appbar.Header>
   );
 }
