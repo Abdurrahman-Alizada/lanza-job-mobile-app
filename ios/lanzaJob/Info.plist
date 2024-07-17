@@ -26,10 +26,6 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-<<<<<<< HEAD
-	  <!-- Do not change NSAllowsArbitraryLoads to true, or you will risk app rejection! -->
-=======
->>>>>>> d29fb63 (ios setup)
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 		<key>NSAllowsLocalNetworking</key>
@@ -51,8 +47,6 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-<<<<<<< HEAD
-=======
 	<key>UIAppFonts</key>
 	<array>
 		<string>AlexBrush-Regular.ttf</string>
@@ -75,6 +69,5 @@
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
 	</array>
->>>>>>> d29fb63 (ios setup)
 </dict>
 </plist>
