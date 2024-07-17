@@ -27,6 +27,8 @@ import ContractorDashboardGeneralAppbar from '../components/Appbars/ContractorDa
 import FreeflexerMenuIndex from '../screens/home/Freeflexer/Menu/MenuIndex';
 import BusinessDetail from '../screens/home/Contractor/businesses/BusinessDetail';
 import UpdateBusiness from '../screens/home/Contractor/businesses/UpdateBusinessDetail';
+import CreateProject from '../screens/home/Contractor/projects/CreateProject';
+import ProjectDetail from '../screens/home/Contractor/projects/ProjectDetail';
 
 const AppStack = () => {
   return (
@@ -124,6 +126,16 @@ const AppStack = () => {
       <Stack.Screen
         name="ContractorProjects"
         component={ProjectIndex}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CreateProject"
+        component={CreateProject}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProjectDetail"
+        component={ProjectDetail}
         options={{ headerShown: false }}
       />
       <Stack.Screen
