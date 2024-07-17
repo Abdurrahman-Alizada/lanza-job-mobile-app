@@ -32,7 +32,7 @@ const ContractorHomeScreen = () => {
               alignItems: 'center',
               justifyContent: 'center',
               borderRadius: 5,
-              borderWidth: 0.2,
+              borderWidth: 0.3,
               borderColor: theme.colors.onBackground
             }}>
             <Avatar.Icon

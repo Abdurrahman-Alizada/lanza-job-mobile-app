@@ -5,8 +5,8 @@ const initialState = {
   businesses: []
 };
 
-export const JobSlice = createSlice({
-  name: 'job',
+export const BusinessSlice = createSlice({
+  name: 'business',
   initialState,
   reducers: {
     handleJobs: (state, action) => {
@@ -19,6 +19,6 @@ export const JobSlice = createSlice({
 
 });
 
-export const { handleJobs, handleBusiness } = JobSlice.actions;
+export const { handleJobs, handleBusiness } = BusinessSlice.actions;
 
-export default JobSlice.reducer;
+export default BusinessSlice.reducer;

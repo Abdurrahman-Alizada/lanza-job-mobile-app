@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { baseURL } from '../../baseURL';
 
-export const businessApi = createApi({
+export const projectApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: baseURL,
     prepareHeaders: async (headers, { getState }) => {
@@ -13,17 +13,17 @@ export const businessApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Project', "UserBusiness"],
-  reducerPath: 'businessApi',
+  tagTypes: ["Project"],
+  reducerPath: 'projectApi',
   endpoints: build => ({
     
-    createUserBusiness: build.mutation({
-      query: newBusiness => ({
-        url: `/userBusiness/create`,
+    createProject: build.mutation({
+      query: newProject => ({
+        url: `/project/create`,
         method: 'POST',
-        body: newBusiness,
+        body: newProject,
       }),
-      invalidatesTags: ['UserBusiness'],
+      invalidatesTags: ["Project"],
     }),
     updateUserBusiness: build.mutation({
       query: updatedBusiness => ({
@@ -31,23 +31,23 @@ export const businessApi = createApi({
         method: 'PUT',
         body: updatedBusiness.business,
       }),
-      invalidatesTags: ['UserBusiness'],
+      invalidatesTags: ["Project"],
     }),
-    getAllUserBusinesses: build.query({
-      query: contractorId => `/userBusiness/getAll/${contractorId}`,
-      providesTags: ['UserBusiness'],
+    getAllProjects: build.query({
+      query: contractorId => `/project/getAll/${contractorId}`,
+      providesTags: ["Project"],
     }),
 
     searhBusiness: build.query({
       query: name => `/business/search?name=${name}`,
-      providesTags: ['Business'],
+      providesTags: ["Project"],
     }),
   }),
 });
 
 export const {
-  useCreateUserBusinessMutation,
+  useCreateProjectMutation,
   useUpdateUserBusinessMutation,
-  useGetAllUserBusinessesQuery,
+  useGetAllProjectsQuery,
   useSearhBusinessQuery
-} = businessApi;
+} = projectApi;
