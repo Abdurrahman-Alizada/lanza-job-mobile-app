@@ -1,0 +1,40 @@
+import React, { useContext } from 'react';
+import { Appbar, Avatar, Button, IconButton, Text, useTheme } from 'react-native-paper';
+import { useNavigation, } from '@react-navigation/native';
+import { StatusBar, TouchableOpacity, View } from 'react-native';
+import { ThemeContext } from '../../themeContext';
+
+const HomeScreenAppbar = ({ greetingText = "Find your dream job" }) => {
+  const theme = useTheme();
+  const navigation = useNavigation();
+  const { isThemeDark } = useContext(ThemeContext);
+
+  return (
+    <Appbar.Header
+      style={{ backgroundColor: theme.colors.background }}
+      elevated={true}>
+      <StatusBar
+        barStyle={isThemeDark ? 'light-content' : 'dark-content'}
+        backgroundColor={theme.colors.background}
+      />
+      
+      <View style={{width:"100%",paddingHorizontal:"2%", flexDirection: 'row', justifyContent: "space-between", alignItems: 'center' }}>
+        <IconButton
+          icon="layers-triple-outline"
+          size={30}
+          onPress={() => navigation.navigate("FreeflexerDashboard")}
+        />
+        <View style={{ flexDirection: "column", paddingVertical: "2%", alignItems: 'center' }}>
+        {/* FreeflexerMenu */}
+          <Text>Welcome, Jolia</Text>
+          <Text style={{ fontSize: 16, fontWeight: "800" }}>{greetingText}</Text>
+        </View>
+        <TouchableOpacity onPress={() => navigation.navigate("FreeflexerMenu")} style={{}}>
+          <Avatar.Icon icon={"account"} style={{ backgroundColor: theme.colors.background, borderWidth: 1, borderColor: theme.colors.onBackground }} size={40} />
+        </TouchableOpacity>
+      </View>
+    </Appbar.Header>
+  );
+};
+
+export default HomeScreenAppbar;
