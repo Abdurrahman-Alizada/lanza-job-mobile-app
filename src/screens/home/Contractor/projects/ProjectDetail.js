@@ -1,29 +1,13 @@
 import React from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
-import { Button, useTheme, Card, Divider, Appbar } from 'react-native-paper';
+import { View, Text, ScrollView } from 'react-native';
+import { Button, useTheme, Appbar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import ContractorDashboardGeneralAppbar from '../../../../components/Appbars/ContractorDashboardGeneralAppbar';
 
 const ProjectDetail = ({ route }) => {
   const theme = useTheme();
   const navigation = useNavigation();
   const { project } = route.params;
 
-  // const renderPhotos = (photos) => {
-  //   console.log("photos",photos)
-  //   return photos.map((photo, index) => (
-  //     <Image
-  //       key={index}
-  //       source={{ uri: photo }}
-  //       style={{
-  //         width: 100,
-  //         height: 100,
-  //         borderRadius: 5,
-  //         margin: 5,
-  //       }}
-  //     />
-  //   ));
-  // };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -37,10 +21,10 @@ const ProjectDetail = ({ route }) => {
         <Button
           mode="contained"
           style={{marginTop:"5%",}}
-          onPress={() => navigation.navigate('ContractorUpdateBusinesese', { business: project })}
+          onPress={() => navigation.navigate('UpdateProject', { project: project })}
           contentStyle={{ padding: 8, backgroundColor: theme.colors.primary }}
         >
-          Edit Business
+          Edit project
         </Button>
       </ScrollView>
     </View>

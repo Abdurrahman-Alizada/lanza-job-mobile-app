@@ -25,11 +25,11 @@ export const projectApi = createApi({
       }),
       invalidatesTags: ["Project"],
     }),
-    updateUserBusiness: build.mutation({
-      query: updatedBusiness => ({
-        url: `/userBusiness/update/${updatedBusiness.id}`,
+    updateProject: build.mutation({
+      query: updatedProject => ({
+        url: `/project/update/${updatedProject.id}`,
         method: 'PUT',
-        body: updatedBusiness.business,
+        body: updatedProject.project,
       }),
       invalidatesTags: ["Project"],
     }),
@@ -47,7 +47,7 @@ export const projectApi = createApi({
 
 export const {
   useCreateProjectMutation,
-  useUpdateUserBusinessMutation,
+  useUpdateProjectMutation,
   useGetAllProjectsQuery,
   useSearhBusinessQuery
 } = projectApi;
