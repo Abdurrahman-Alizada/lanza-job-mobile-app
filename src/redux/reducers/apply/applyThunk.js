@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { baseURL } from '../../baseURL';
 
-export const jobApi = createApi({
+export const applyApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: baseURL,
     prepareHeaders: async (headers, { getState }) => {
@@ -13,25 +13,25 @@ export const jobApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Job'],
-  reducerPath: 'jobApi',
+  tagTypes: ['Apply'],
+  reducerPath: 'applyApi',
   endpoints: build => ({
 
-    createJob: build.mutation({
-      query: newJob => ({
-        url: `/jobs/create`,
+    createApply: build.mutation({
+      query: newApply => ({
+        url: `/apply/create`,
         method: 'POST',
-        body: newJob,
+        body: newApply,
       }),
-      invalidatesTags: ["Job"],
+      invalidatesTags: ["Apply"],
     }),
     getAllJobs: build.query({
       query: filters => `/jobs/getAll?${filters}`,
-      providesTags: ['Job'],
+      providesTags: ['Apply'],
     }),
     getJobDetails: build.query({
       query: id => `/jobs/getJobDetails/${id}`,
-      providesTags: ['Job'],
+      providesTags: ['Apply'],
     }),
 
   }),
@@ -39,7 +39,7 @@ export const jobApi = createApi({
 
 
 export const {
-  useCreateJobMutation,
+  useCreateApplyMutation,
   useGetAllJobsQuery,
   useGetJobDetailsQuery
-} = jobApi;
+} = applyApi;

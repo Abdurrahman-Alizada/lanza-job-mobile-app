@@ -1,135 +1,157 @@
 import React, { useState } from 'react';
-import { View, FlatList, TouchableOpacity } from 'react-native';
-import { TextInput, Text, useTheme, Card, Button, Divider, Icon, Appbar } from 'react-native-paper';
+import { View, Text, TouchableOpacity, TextInput, Modal, FlatList, StyleSheet } from 'react-native';
+import { Button, IconButton, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { useSearhBusinessQuery, useGetAllUserBusinessesQuery, useCreateUserBusinessMutation } from '../../../../redux/reducers/businesses/businessThunk';
 import { useSelector } from 'react-redux';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { useGetAllUserBusinessesQuery } from '../../../../redux/reducers/businesses/businessThunk';
+import { useCreateProjectMutation } from '../../../../redux/reducers/projects/projectThunk';
 
 const CreateProject = () => {
-    const theme = useTheme();
-    const navigation = useNavigation();
-    const [query, setQuery] = useState('');
-    const [selectedItem, setSelectedItem] = useState({});
-    const currentLoginUser = useSelector(state => state.user.currentLoginUser);
+  const theme = useTheme();
+  const navigation = useNavigation();
+  const currentLoginUser = useSelector(state => state.user.currentLoginUser);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const { data, isLoading } = useGetAllUserBusinessesQuery(currentLoginUser.id);
+  const [createProject, { isLoading: createProjectLoading }] = useCreateProjectMutation();
+  const validationSchema = Yup.object().shape({
+    projectName: Yup.string().required('Project name is required'),
+  });
 
-    const { data: userBusinessesData } = useGetAllUserBusinessesQuery(currentLoginUser.id);
-
-    const { data: filteredData = [], error, isLoading } = useSearhBusinessQuery(query, {
-        skip: !query,
-    });
-    const [createUserBusiness, { isLoading: CreateBusinessLoading, error: businessError }] =
-        useCreateUserBusinessMutation();
-
-
-    const handleInputChange = (text) => {
-        setQuery(text);
-    };
-
-    const handleSelectItem = (item) => {
-        setQuery(item.name);
-        setSelectedItem(item);
-    };
-
-    const handleSearchAnotherBusiness = () => {
-        setQuery('');
-        setSelectedItem({});
-    };
-
-    const isBusinessOwned = (businessId) => {
-        return userBusinessesData?.businesses.some((business) => business.id === businessId);
-    };
-
-    const AddBusiness = () => {
-
-        const newUserBusiness = {
-            id: selectedItem.id,
-            contractorId: currentLoginUser.id,
-            docs: selectedItem.docs,
-            address: selectedItem.address,
-            photos: selectedItem.photos,
-            description: selectedItem.description,
-            name: selectedItem.name,
-            users: selectedItem.users,
-            nameOnInvoice: selectedItem.nameOnInvoice,
-            paymentDetails: selectedItem.paymentDetails,
-            invoiceAddress: selectedItem.invoiceAddress,
-            invoices: selectedItem.invoices
-        }
-
-
-        createUserBusiness(newUserBusiness).then((res) => {
-            navigation.goBack()
-        })
+  const handleCreateProject = async (values) => {
+    if (selectedBusiness) {
+      await createProject({
+        name: values.projectName,
+        business: selectedBusiness._id,
+        contractorId:currentLoginUser.id
+      });
+      navigation.goBack();
+    } else {
+      alert('Please select a business.');
     }
-    return (
-        <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
-           <Appbar.Header>
-           <Appbar.BackAction onPress={() => navigation.goBack()} />
+  };
 
-           </Appbar.Header>
-           <View style={{padding:"5%"}}>
-            {selectedItem.name ? (
-                <Card>
-                    <Card.Content>
-                        <Text variant="titleLarge">{selectedItem.name}</Text>
-                        <Text variant="bodyMedium">{selectedItem.description}</Text>
-                        <View style={{ marginTop: "4%", alignItems: "center", flexDirection: "row" }}>
-                            <Icon source="map-marker-outline" size={20} />
-                            <Text variant="bodyLarge" style={{}}>{selectedItem.address}</Text>
-                        </View>
-                    </Card.Content>
-                    <Divider style={{ marginVertical: "3%" }} />
-                    <Button loading={CreateBusinessLoading} disabled={CreateBusinessLoading} onPress={AddBusiness} mode="contained" style={{ margin: "2%" }}>Add this as your business</Button>
-                    <Button mode="outlined" style={{ margin: "2%" }} onPress={handleSearchAnotherBusiness}>Search for another business</Button>
-                </Card>
-            ) : (
-                <View>
-                    <TextInput
-                        placeholder="Enter your business name"
-                        value={query}
-                        onChangeText={handleInputChange}
-                        mode="outlined"
-                        activeOutlineColor={theme.colors.lightBackground}
-                        outlineColor={theme.colors.lightBackground}
-                        style={{
-                            marginBottom: 10,
-                            backgroundColor: theme.colors.background,
-                            caretColor: 'black'
-                        }}
-                        theme={{ colors: { text: theme.colors.placeholder, primary: theme.colors.placeholder } }}
-                    />
-                    {isLoading && <Text>Loading...</Text>}
-                    {error && <Text>Error fetching data</Text>}
-                    <FlatList
-                        data={filteredData.businesses}
-                        ListEmptyComponent={() => (
-                            <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-                                <Text style={{ marginTop: "5%" }}>Nothing to show</Text>
-                            </View>
-                        )}
-                        renderItem={({ item }) => {
-                            const owned = isBusinessOwned(item.id);
-                            return (
-                                <TouchableOpacity
-                                    onPress={() => !owned && handleSelectItem(item)}
-                                    style={{ padding: "3%", }}
-                                    disabled={owned}
-                                >
-                                    <View style={{ flexDirection: "row", alignItems: "center" }}>
-                                        {owned && <Icon source={"check"} color={theme.colors.blue} />}
-                                        <Text style={{ marginLeft: owned ? "2%" : 0, color: owned ? theme.colors.placeholder : theme.colors.onBackground, fontWeight: "bold" }}>{item.name}</Text>
-                                    </View>
-                                    <Text style={{ color: owned ? theme.colors.placeholder : theme.colors.onBackground, fontWeight: "200" }}>{item.address}</Text>
-                                    <Divider style={{ marginVertical: "1%" }} />
-                                </TouchableOpacity>
-                            );
-                        }}
-                    />
-                </View>
+  const RenderItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => {
+        setSelectedBusiness(item);
+        setModalVisible(false);
+      }}
+      style={styles.businessItem}
+    >
+      <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{item.name}</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={{
+      flex: 1,
+      padding: 20,
+      backgroundColor: theme.colors.background,
+    }}>
+      <Formik
+        initialValues={{ projectName: '' }}
+        validationSchema={validationSchema}
+        onSubmit={handleCreateProject}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+          <View>
+            <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.inputContainer}>
+              <Text style={styles.label}>Business</Text>
+              <Text style={styles.input}>{selectedBusiness ? selectedBusiness.name : 'Select Business'}</Text>
+            </TouchableOpacity>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Name of project</Text>
+              <TextInput
+                placeholder="Enter Project Name"
+                onChangeText={handleChange('projectName')}
+                onBlur={handleBlur('projectName')}
+                value={values.projectName}
+                style={styles.input}
+              />
+              {touched.projectName && errors.projectName && (
+                <Text style={styles.errorText}>{errors.projectName}</Text>
+              )}
+            </View>
+
+            <Button mode="contained" loading={createProjectLoading} disabled={createProjectLoading} onPress={handleSubmit} style={{}}>
+              Save
+            </Button>
+          </View>
+        )}
+      </Formik>
+
+      <Modal visible={modalVisible} animationType="slide">
+        <View style={{
+          flex: 1,
+          padding: 20,
+          backgroundColor: theme.colors.background,
+
+        }}>
+
+          <IconButton
+            onPress={() => setModalVisible(false)}
+            icon="close"
+            iconColor={theme.colors.onBackground}
+            size={25}
+            style={{ alignSelf: "flex-end" }}
+          />
+          <FlatList
+            data={data?.businesses}
+            renderItem={({ item }) => <RenderItem item={item} />}
+            keyExtractor={(item) => item.id.toString()}
+            ListEmptyComponent={() => (
+              <View style={styles.emptyComponent}>
+                <Text>{isLoading ? 'Loading...' : 'No businesses found'}</Text>
+              </View>
             )}
-           </View>
+          />
         </View>
-    );
+      </Modal>
+    </View>
+  );
 };
+
+const styles = StyleSheet.create({
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    marginBottom: 5,
+    color: '#333',
+    fontWeight: 'bold',
+  },
+  input: {
+    padding: 15,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor: '#fff',
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 5,
+  },
+  saveButton: {
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 5,
+    backgroundColor: '#007bff',
+    alignItems: 'center',
+  },
+  businessItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  emptyComponent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 
 export default CreateProject;
