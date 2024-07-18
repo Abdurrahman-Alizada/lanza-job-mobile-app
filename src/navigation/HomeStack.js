@@ -29,6 +29,7 @@ import BusinessDetail from '../screens/home/Contractor/businesses/BusinessDetail
 import UpdateBusiness from '../screens/home/Contractor/businesses/UpdateBusinessDetail';
 import CreateProject from '../screens/home/Contractor/projects/CreateProject';
 import ProjectDetail from '../screens/home/Contractor/projects/ProjectDetail';
+import UpdateProject from '../screens/home/Contractor/projects/UpdateProjectDetail';
 
 const AppStack = () => {
   return (
@@ -132,6 +133,15 @@ const AppStack = () => {
         name="CreateProject"
         component={CreateProject}
         options={{ headerShown: false }}
+      />
+            <Stack.Screen
+        name="UpdateProject"
+        component={UpdateProject}
+        options={{
+          header: props => (
+            <GeneralAppbar title={'Update project'} {...props} />
+          )
+        }}
       />
       <Stack.Screen
         name="ProjectDetail"
