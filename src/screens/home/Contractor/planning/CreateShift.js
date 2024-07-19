@@ -14,8 +14,10 @@ const CreateShift = ({ navigation }) => {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedProject, setSelectedBusiness] = useState(null);
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [date, setDate] = useState(new Date());
+    const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+    const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
     const [autoAcceptFlexpools, setAutoAcceptFlexpools] = useState(false);
     const [autoAcceptRegulars, setAutoAcceptRegulars] = useState(false);
     const [smartPricing, setSmartPricing] = useState(false);
@@ -31,18 +33,24 @@ const CreateShift = ({ navigation }) => {
     const [createJob, { isLoading: createJobLoading }] = useCreateJobMutation();
 
     const handleCreateShift = async (values) => {
-        console.log("first create")
         if (selectedProject) {
-            const newProject = { ...values, project: selectedProject._id, business: selectedProject.business?._id, contractorId: currentLoginUser.id }
-            await createJob(newProject).then((res) => {
-                // console.log("job", res)
+            const newProject = {
+                ...values,
+                project: selectedProject._id,
+                business: selectedProject.business?._id,
+                contractorId: currentLoginUser.id,
+                availability: {
+                    from: startDate,
+                    to: endDate,
+                },
+            };
+            await createJob(newProject).then(() => {
                 navigation.goBack();
             });
         } else {
             alert('Please select a business.');
         }
     };
-
 
     const RenderItem = ({ item }) => (
         <TouchableOpacity
@@ -62,9 +70,7 @@ const CreateShift = ({ navigation }) => {
 
     return (
         <View style={{ flex: 1, padding: "5%", backgroundColor: theme.colors.background }}>
-
-            <ScrollView style={{}}>
-
+            <ScrollView>
                 <TouchableOpacity onPress={() => setModalVisible(true)} style={{ marginVertical: "5%" }}>
                     <Text style={{
                         marginBottom: 5,
@@ -113,9 +119,9 @@ const CreateShift = ({ navigation }) => {
                             </View>
 
                             <View style={{ marginBottom: 20 }}>
-                                <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Date & Time</Text>
+                                <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Date & Time (From)</Text>
                                 <TouchableOpacity
-                                    onPress={() => setShowDatePicker(true)}
+                                    onPress={() => setShowStartDatePicker(true)}
                                     style={{
                                         padding: 15,
                                         borderRadius: 5,
@@ -124,19 +130,49 @@ const CreateShift = ({ navigation }) => {
                                         backgroundColor: '#fff',
                                     }}
                                 >
-                                    <Text>{date.toString()}</Text>
+                                    <Text>{startDate.toString()}</Text>
                                 </TouchableOpacity>
-                                {showDatePicker && (
+                                {showStartDatePicker && (
                                     <DatePicker
                                         modal
-                                        open={showDatePicker}
-                                        date={date}
+                                        open={showStartDatePicker}
+                                        date={startDate}
                                         onConfirm={date => {
-                                            setShowDatePicker(false);
-                                            setDate(date);
+                                            setShowStartDatePicker(false);
+                                            setStartDate(date);
                                         }}
                                         onCancel={() => {
-                                            setShowDatePicker(false);
+                                            setShowStartDatePicker(false);
+                                        }}
+                                    />
+                                )}
+                            </View>
+
+                            <View style={{ marginBottom: 20 }}>
+                                <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Date & Time (To)</Text>
+                                <TouchableOpacity
+                                    onPress={() => setShowEndDatePicker(true)}
+                                    style={{
+                                        padding: 15,
+                                        borderRadius: 5,
+                                        borderWidth: 1,
+                                        borderColor: '#ccc',
+                                        backgroundColor: '#fff',
+                                    }}
+                                >
+                                    <Text>{endDate.toString()}</Text>
+                                </TouchableOpacity>
+                                {showEndDatePicker && (
+                                    <DatePicker
+                                        modal
+                                        open={showEndDatePicker}
+                                        date={endDate}
+                                        onConfirm={date => {
+                                            setShowEndDatePicker(false);
+                                            setEndDate(date);
+                                        }}
+                                        onCancel={() => {
+                                            setShowEndDatePicker(false);
                                         }}
                                     />
                                 )}
@@ -220,7 +256,7 @@ const CreateShift = ({ navigation }) => {
                             <Button
                                 mode="contained"
                                 onPress={handleSubmit}
-                                contentStyle={{ padding: "2%",  alignItems: 'center' }}
+                                contentStyle={{ padding: "2%", alignItems: 'center' }}
                             >
                                 Publish shift
                             </Button>
@@ -251,8 +287,7 @@ const CreateShift = ({ navigation }) => {
                     />
                     <FlatList
                         data={data?.projects}
-                        renderItem={({ item }) => <RenderItem item={item} />
-                        }
+                        renderItem={({ item }) => <RenderItem item={item} />}
                         ListEmptyComponent={() => (
                             <View style={{
                                 flex: 1,
@@ -261,7 +296,8 @@ const CreateShift = ({ navigation }) => {
                             }}>
                                 <Text>{isLoading ? 'Loading...' : 'No businesses found'}</Text>
                             </View>
-                        )} />
+                        )}
+                    />
                 </View>
             </Modal>
         </View>

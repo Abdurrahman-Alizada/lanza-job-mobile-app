@@ -4,7 +4,7 @@ import { useNavigation, } from '@react-navigation/native';
 import { StatusBar, TouchableOpacity, View } from 'react-native';
 import { ThemeContext } from '../../themeContext';
 
-const HomeScreenAppbar = ({ greetingText = "Find your dream job" }) => {
+const HomeScreenAppbar = ({ isMainScreen = true, greetingText = "Find your dream job" }) => {
   const theme = useTheme();
   const navigation = useNavigation();
   const { isThemeDark } = useContext(ThemeContext);
@@ -12,21 +12,30 @@ const HomeScreenAppbar = ({ greetingText = "Find your dream job" }) => {
   return (
     <Appbar.Header
       style={{ backgroundColor: theme.colors.background }}
-      elevated={true}>
+      // elevated={true}
+      >
       <StatusBar
         barStyle={isThemeDark ? 'light-content' : 'dark-content'}
         backgroundColor={theme.colors.background}
       />
-      
-      <View style={{width:"100%",paddingHorizontal:"2%", flexDirection: 'row', justifyContent: "space-between", alignItems: 'center' }}>
-        <IconButton
-          icon="layers-triple-outline"
-          size={30}
-          onPress={() => navigation.navigate("FreeflexerDashboard")}
-        />
+
+      <View style={{ width: "100%", paddingHorizontal: "2%", flexDirection: 'row', justifyContent: "space-between", alignItems: 'center' }}>
+        {
+          isMainScreen ?
+            <IconButton
+              icon="layers-triple-outline"
+              size={30}
+              onPress={() => navigation.navigate("FreeflexerDashboard")}
+            />
+            :
+            <Appbar.BackAction onPress={() => navigation.goBack()} />
+        }
+
         <View style={{ flexDirection: "column", paddingVertical: "2%", alignItems: 'center' }}>
-        {/* FreeflexerMenu */}
-          <Text>Welcome, Jolia</Text>
+          {
+            isMainScreen &&
+            <Text>Welcome, Jolia</Text>
+          }
           <Text style={{ fontSize: 16, fontWeight: "800" }}>{greetingText}</Text>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate("FreeflexerMenu")} style={{}}>

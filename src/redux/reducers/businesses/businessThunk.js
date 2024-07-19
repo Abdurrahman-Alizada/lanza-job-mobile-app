@@ -13,7 +13,7 @@ export const businessApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Project', "UserBusiness"],
+  tagTypes: ['Project', "UserBusiness","Business"],
   reducerPath: 'businessApi',
   endpoints: build => ({
     
