@@ -5,8 +5,11 @@ import { Button, IconButton, useTheme, Searchbar, Avatar, Card, Text } from 'rea
 import { useNavigation } from '@react-navigation/native';
 import { useGetAllJobsQuery } from '../../../redux/reducers/jobs/jobThunk';
 import JobsCardsSkeleton from '../../../skeleton/JobsCards';
+import moment from 'moment';
+import { useSelector } from 'react-redux';
 
 const FreeflexerHomeScreen = ({ route }) => {
+  const currentLoginUser = useSelector(state=>state.user.currentLoginUser)
   const [searchQuery, setSearchQuery] = useState('');
   const theme = useTheme();
   const navigation = useNavigation();
@@ -18,14 +21,21 @@ const FreeflexerHomeScreen = ({ route }) => {
     isLoading,
     isFetching,
     refetch,
-  } = useGetAllJobsQuery(route.params?.filters);
-
+  } = useGetAllJobsQuery({freeflexerId:currentLoginUser.id, filters: route.params?.filters});
   useEffect(() => {
     if (route.params?.filters) {
       refetch()
     }
   }, [])
+
   const RenderItem = ({ item }) => {
+  const getAvatarSource = () => {
+    if (item.business?.photos && item.business.photos.length > 0) {
+      return { uri: item.business.photos[0] };
+    } else {
+      return require('../../../assets/profilepic.png');
+    }
+  };
     return (
       <Card
         key={item.id}
@@ -38,13 +48,13 @@ const FreeflexerHomeScreen = ({ route }) => {
 
       >
         <Card.Content>
-          <Text style={{ color: theme.colors.placeholder, fontSize: 12 }}>Tuesday, 4 June</Text>
+          <Text style={{ color: theme.colors.placeholder, fontSize: 12 }}>{moment(item.availability?.from).format("dddd, D MMMM")} </Text>
 
         </Card.Content>
         <Card.Title
-          title={item.title}
-          subtitle="17:00 - 1:00"
-          left={(props) => <Avatar.Icon {...props} icon="folder" />}
+          title={item.business?.name}
+          subtitle={`${moment(item.availability?.from).format("hh:mm")}-${moment(item.availability?.to).format("hh:mm")}`}
+          left={(props) => <Avatar.Image {...props} source={getAvatarSource()} />}
           right={(props) => (
             <IconButton
               {...props}
@@ -63,12 +73,12 @@ const FreeflexerHomeScreen = ({ route }) => {
             marginRight: 15,
           }}
         />
-        <Text style={{ fontWeight: 'bold', marginLeft: 15, marginTop: 11 }}>Head waiter - 2.5 km</Text>
+        <Text style={{ fontWeight: 'bold', marginLeft: 15, marginTop: 11 }}>{item.title} - 2.5 km</Text>
         <View style={{ flexDirection: 'row', marginLeft: 15, marginTop: 10, justifyContent: "space-between", alignItems: "center" }}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
 
-            <Text style={{ fontWeight: '700', color: "#0000ff" }}>${item.hourlyRate}.00/hr</Text>
-            <Text style={{ color: theme.colors.placeholder, fontSize: 12, marginLeft: 10 }}>Estimated $16.00/hr</Text>
+            <Text style={{ fontWeight: '700', color: theme.colors.blue }}>${item.hourlyRate}.00 / hr</Text>
+            {/* <Text style={{ color: theme.colors.placeholder, fontSize: 12, marginLeft: 10 }}>Estimated $16.00/hr</Text> */}
           </View>
           <Button style={{ borderRadius: 8 }} mode="contained" onPress={() => navigation.navigate("JobDetailsScreen", { jobId: item._id })}>
             See Details
@@ -77,7 +87,6 @@ const FreeflexerHomeScreen = ({ route }) => {
       </Card>
     )
   }
-
 
   return (
     <View style={{ flex: 1, }}>

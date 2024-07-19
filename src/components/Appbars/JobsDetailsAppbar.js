@@ -7,7 +7,7 @@ export default function CustomNavigationBar() {
  const theme= useTheme();
 
   return (
-      <View
+      <Appbar.Header
         style={{flexDirection:'row', backgroundColor: theme.colors.background}}>
         
         <View style={{alignItems: 'center', width: '33%'}}>
@@ -28,6 +28,6 @@ export default function CustomNavigationBar() {
           />
         </View>
 
-       </View>
+       </Appbar.Header>
   );
 }

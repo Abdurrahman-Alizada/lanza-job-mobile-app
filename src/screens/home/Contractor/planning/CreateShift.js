@@ -1,240 +1,269 @@
 import React, { useState } from 'react';
-import { View, ScrollView, TouchableOpacity, Modal } from 'react-native';
-import { Text, TextInput, Button, IconButton, useTheme, Icon } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, TextInput, Switch, TouchableOpacity, ScrollView, Modal, FlatList } from 'react-native';
+import { Button, IconButton, useTheme } from 'react-native-paper';
+import DatePicker from 'react-native-date-picker';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import DatePicker from 'react-native-date-picker';
+import { useGetAllProjectsQuery } from '../../../../redux/reducers/projects/projectThunk';
+import { useSelector } from 'react-redux';
+import { useCreateJobMutation } from '../../../../redux/reducers/jobs/jobThunk';
 
-const validationSchema = Yup.object().shape({
-    companyName: Yup.string().required('*required').label('Company Name'),
-    email: Yup.string().email('Invalid email').required('*required').label('Email'),
-    phoneNumber: Yup.string().required('*required').label('Phone Number'),
-    dateOfBirth: Yup.string().required('*required').label('Date of Birth'),
-    aboutMe: Yup.string().required('*required').label('About Me'),
-    citizenNumber: Yup.string().required('*required').label('Citizen Number'),
-    address: Yup.string().required('*required').label('Address'),
-});
-
-const CreateShift = () => {
+const CreateShift = ({ navigation }) => {
+    const currentLoginUser = useSelector(state => state.user.currentLoginUser);
     const theme = useTheme();
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedProject, setSelectedBusiness] = useState(null);
+    const [showDatePicker, setShowDatePicker] = useState(false);
     const [date, setDate] = useState(new Date());
-    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
-    const navigation = useNavigation();
+    const [autoAcceptFlexpools, setAutoAcceptFlexpools] = useState(false);
+    const [autoAcceptRegulars, setAutoAcceptRegulars] = useState(false);
+    const [smartPricing, setSmartPricing] = useState(false);
+    const { data, isLoading } = useGetAllProjectsQuery(currentLoginUser.id);
 
-    const showDatePicker = () => {
-        setDatePickerVisible(true);
+    const validationSchema = Yup.object().shape({
+        title: Yup.string().required('Title is required'),
+        numberOfPeople: Yup.string().required('Number of people is required'),
+        hourlyRate: Yup.string().required('Hourly rate is required'),
+        cancellationPolicy: Yup.string().required('Cancellation policy is required'),
+    });
+
+    const [createJob, { isLoading: createJobLoading }] = useCreateJobMutation();
+
+    const handleCreateShift = async (values) => {
+        console.log("first create")
+        if (selectedProject) {
+            const newProject = { ...values, project: selectedProject._id, business: selectedProject.business?._id, contractorId: currentLoginUser.id }
+            await createJob(newProject).then((res) => {
+                // console.log("job", res)
+                navigation.goBack();
+            });
+        } else {
+            alert('Please select a business.');
+        }
     };
 
-    const hideDatePicker = () => {
-        setDatePickerVisible(false);
-    };
 
-    const handleConfirm = (date, setFieldValue) => {
-        setFieldValue('dateOfBirth', date.toLocaleDateString());
-        setDate(date);
-        hideDatePicker();
-    };
-
-    const submitHandler = async (values, actions) => {
-        console.log('Form values:', values);
-        // Handle form submission
-    };
+    const RenderItem = ({ item }) => (
+        <TouchableOpacity
+            onPress={() => {
+                setSelectedBusiness(item);
+                setModalVisible(false);
+            }}
+            style={{
+                padding: 15,
+                borderBottomWidth: 1,
+                borderBottomColor: '#ccc',
+            }}
+        >
+            <Text style={{ fontWeight: "bold", fontSize: 16 }}>{item?.business?.name} / <Text style={{ fontWeight: "300" }}> {item?.name}</Text></Text>
+        </TouchableOpacity>
+    );
 
     return (
-        <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-            <ScrollView contentContainerStyle={{ padding: '4%' }}>
+        <View style={{ flex: 1, padding: "5%", backgroundColor: theme.colors.background }}>
+
+            <ScrollView style={{}}>
+
+                <TouchableOpacity onPress={() => setModalVisible(true)} style={{ marginVertical: "5%" }}>
+                    <Text style={{
+                        marginBottom: 5,
+                        color: '#333',
+                        fontWeight: 'bold',
+                    }}>Business / project</Text>
+                    <Text style={{
+                        padding: 15,
+                        borderRadius: 5,
+                        borderWidth: 1,
+                        borderColor: '#ccc',
+                        backgroundColor: '#fff',
+                    }}>{selectedProject ? selectedProject.name : 'Select Business'}</Text>
+                </TouchableOpacity>
 
                 <Formik
                     initialValues={{
-                        companyName: '',
-                        email: '',
-                        phoneNumber: '',
-                        dateOfBirth: '',
-                        aboutMe: '',
-                        citizenNumber: '',
-                        address: '',
+                        title: '',
+                        numberOfPeople: '',
+                        hourlyRate: '',
+                        cancellationPolicy: '',
                     }}
                     validationSchema={validationSchema}
-                    onSubmit={(values, actions) => {
-                        submitHandler(values, actions);
-                    }}>
-                    {({
-                        handleChange,
-                        handleBlur,
-                        handleSubmit,
-                        setFieldValue,
-                        values,
-                        errors,
-                        touched,
-                    }) => (
+                    onSubmit={handleCreateShift}
+                >
+                    {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                         <View>
-                            <Text style={{ fontWeight: 'bold' }}>Company Name</Text>
-                            <TextInput
-                                placeholder="Shen watson..."
-                                mode="outlined"
-                                style={{ marginTop: '2%' }}
-                                outlineColor={theme.colors.lightgrey}
-                                placeholderTextColor={theme.colors.placeholder}
-                                dense
-                                activeOutlineColor={theme.colors.secondary}
-                                value={values.companyName}
-                                onChangeText={handleChange('companyName')}
-                                onBlur={handleBlur('companyName')}
-                                right={<TextInput.Icon icon={"chevron-right"} />
-                                }
-                            />
-                            {errors.companyName && touched.companyName ? (
-                                <Text style={{ color: theme.colors.error }}>{errors.companyName}</Text>
-                            ) : null}
-
-                            <Text style={{ fontWeight: 'bold', marginTop: 10 }}>Email</Text>
-                            <TextInput
-                                placeholder="watson@gmail.com"
-                                mode="outlined"
-                                style={{ marginTop: '2%' }}
-                                outlineColor={theme.colors.lightgrey}
-                                placeholderTextColor={theme.colors.placeholder}
-                                dense
-                                activeOutlineColor={theme.colors.secondary}
-                                value={values.email}
-                                onChangeText={handleChange('email')}
-                                onBlur={handleBlur('email')}
-                            />
-                            {errors.email && touched.email ? (
-                                <Text style={{ color: theme.colors.error }}>{errors.email}</Text>
-                            ) : null}
-
-                            <Text style={{ fontWeight: 'bold', marginTop: 10 }}>Phone Number</Text>
-                            <TextInput
-                                placeholder="+44123456789"
-                                mode="outlined"
-                                style={{ marginTop: '2%' }}
-                                outlineColor={theme.colors.lightgrey}
-                                placeholderTextColor={theme.colors.placeholder}
-                                dense
-                                activeOutlineColor={theme.colors.secondary}
-                                value={values.phoneNumber}
-                                onChangeText={handleChange('phoneNumber')}
-                                onBlur={handleBlur('phoneNumber')}
-                            />
-                            {errors.phoneNumber && touched.phoneNumber ? (
-                                <Text style={{ color: theme.colors.error }}>{errors.phoneNumber}</Text>
-                            ) : null}
-
-                            <Text style={{ fontWeight: 'bold', marginTop: 10 }}>Date of Birth</Text>
-                            <TouchableOpacity onPress={showDatePicker}>
+                            <View style={{ marginBottom: 20 }}>
+                                <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Title</Text>
                                 <TextInput
-                                    placeholder="01/01/2000"
-                                    mode="outlined"
-                                    style={{ marginTop: '2%' }}
-                                    outlineColor={theme.colors.lightgrey}
-                                    placeholderTextColor={theme.colors.placeholder}
-                                    dense
-                                    activeOutlineColor={theme.colors.secondary}
-                                    value={values.dateOfBirth}
-                                    editable={false}
-                                    pointerEvents="none"
+                                    style={{
+                                        padding: 15,
+                                        borderRadius: 5,
+                                        borderWidth: 1,
+                                        borderColor: '#ccc',
+                                        backgroundColor: '#fff',
+                                    }}
+                                    placeholder="Title"
+                                    onChangeText={handleChange('title')}
+                                    onBlur={handleBlur('title')}
+                                    value={values.title}
                                 />
-                            </TouchableOpacity>
-                            {errors.dateOfBirth && touched.dateOfBirth ? (
-                                <Text style={{ color: theme.colors.error }}>{errors.dateOfBirth}</Text>
-                            ) : null}
+                                {touched.title && errors.title && (
+                                    <Text style={{ color: 'red', marginTop: 5 }}>{errors.title}</Text>
+                                )}
+                            </View>
 
-                            <Modal
-                                transparent={true}
-                                animationType="slide"
-                                visible={isDatePickerVisible}
-                                onRequestClose={hideDatePicker}
-                            >
-                                <View style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    backgroundColor: 'rgba(0,0,0,0.5)',
-                                }}>
-                                    <View style={{
-                                        backgroundColor: 'white',
-                                        padding: 20,
-                                        borderRadius: 10,
-                                    }}>
-                                        <IconButton onPress={hideDatePicker} style={{ alignSelf: "flex-end" }} icon={"close"} />
-                                        <DatePicker
-                                            date={date}
-                                            onDateChange={(newDate) => setDate(newDate)}
-                                            mode="date"
-                                        />
+                            <View style={{ marginBottom: 20 }}>
+                                <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Date & Time</Text>
+                                <TouchableOpacity
+                                    onPress={() => setShowDatePicker(true)}
+                                    style={{
+                                        padding: 15,
+                                        borderRadius: 5,
+                                        borderWidth: 1,
+                                        borderColor: '#ccc',
+                                        backgroundColor: '#fff',
+                                    }}
+                                >
+                                    <Text>{date.toString()}</Text>
+                                </TouchableOpacity>
+                                {showDatePicker && (
+                                    <DatePicker
+                                        modal
+                                        open={showDatePicker}
+                                        date={date}
+                                        onConfirm={date => {
+                                            setShowDatePicker(false);
+                                            setDate(date);
+                                        }}
+                                        onCancel={() => {
+                                            setShowDatePicker(false);
+                                        }}
+                                    />
+                                )}
+                            </View>
 
-                                        <Button mode="contained" style={{ margin: "3%" }} onPress={() => handleConfirm(date, setFieldValue)}>Confirm</Button>
-                                    </View>
-                                </View>
-                            </Modal>
+                            <View style={{ marginBottom: 20 }}>
+                                <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Number of people</Text>
+                                <TextInput
+                                    style={{
+                                        padding: 15,
+                                        borderRadius: 5,
+                                        borderWidth: 1,
+                                        borderColor: '#ccc',
+                                        backgroundColor: '#fff',
+                                    }}
+                                    placeholder="Enter number of people"
+                                    onChangeText={handleChange('numberOfPeople')}
+                                    onBlur={handleBlur('numberOfPeople')}
+                                    value={values.numberOfPeople}
+                                />
+                                {touched.numberOfPeople && errors.numberOfPeople && (
+                                    <Text style={{ color: 'red', marginTop: 5 }}>{errors.numberOfPeople}</Text>
+                                )}
+                            </View>
 
-                            <Text style={{ fontWeight: 'bold', marginTop: 10 }}>About Me</Text>
-                            <TextInput
-                                placeholder="Student, Hospitality expert"
-                                mode="outlined"
-                                style={{ marginTop: '2%' }}
-                                outlineColor={theme.colors.lightgrey}
-                                placeholderTextColor={theme.colors.placeholder}
-                                dense
-                                activeOutlineColor={theme.colors.secondary}
-                                value={values.aboutMe}
-                                onChangeText={handleChange('aboutMe')}
-                                onBlur={handleBlur('aboutMe')}
-                            />
-                            {errors.aboutMe && touched.aboutMe ? (
-                                <Text style={{ color: theme.colors.error }}>{errors.aboutMe}</Text>
-                            ) : null}
+                            <View style={{ marginBottom: 20 }}>
+                                <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Hourly rate</Text>
+                                <TextInput
+                                    style={{
+                                        padding: 15,
+                                        borderRadius: 5,
+                                        borderWidth: 1,
+                                        borderColor: '#ccc',
+                                        backgroundColor: '#fff',
+                                    }}
+                                    placeholder="$0.00"
+                                    onChangeText={handleChange('hourlyRate')}
+                                    onBlur={handleBlur('hourlyRate')}
+                                    value={values.hourlyRate}
+                                />
+                                {touched.hourlyRate && errors.hourlyRate && (
+                                    <Text style={{ color: 'red', marginTop: 5 }}>{errors.hourlyRate}</Text>
+                                )}
+                            </View>
 
-                            <Text style={{ fontWeight: 'bold', marginTop: 10 }}>Citizen Number</Text>
-                            <TextInput
-                                placeholder="123456789"
-                                mode="outlined"
-                                style={{ marginTop: '2%' }}
-                                outlineColor={theme.colors.lightgrey}
-                                placeholderTextColor={theme.colors.placeholder}
-                                dense
-                                activeOutlineColor={theme.colors.secondary}
-                                value={values.citizenNumber}
-                                onChangeText={handleChange('citizenNumber')}
-                                onBlur={handleBlur('citizenNumber')}
-                            />
-                            {errors.citizenNumber && touched.citizenNumber ? (
-                                <Text style={{ color: theme.colors.error }}>{errors.citizenNumber}</Text>
-                            ) : null}
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                                <Text style={{ fontWeight: 'bold' }}>Auto-accept flexpools</Text>
+                                <Switch value={autoAcceptFlexpools} onValueChange={setAutoAcceptFlexpools} />
+                            </View>
 
-                            <Text style={{ fontWeight: 'bold', marginTop: 10 }}>Where do you live?</Text>
-                            <TextInput
-                                placeholder="xyz, street# 02, central london"
-                                mode="outlined"
-                                style={{ marginTop: '2%' }}
-                                outlineColor={theme.colors.lightgrey}
-                                placeholderTextColor={theme.colors.placeholder}
-                                dense
-                                activeOutlineColor={theme.colors.secondary}
-                                value={values.address}
-                                onChangeText={handleChange('address')}
-                                onBlur={handleBlur('address')}
-                            />
-                            {errors.address && touched.address ? (
-                                <Text style={{ color: theme.colors.error }}>{errors.address}</Text>
-                            ) : null}
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                                <Text style={{ fontWeight: 'bold' }}>Auto-accept regulars</Text>
+                                <Switch value={autoAcceptRegulars} onValueChange={setAutoAcceptRegulars} />
+                            </View>
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                                <Text style={{ fontWeight: 'bold' }}>Smart pricing</Text>
+                                <Switch value={smartPricing} onValueChange={setSmartPricing} />
+                            </View>
+
+                            <View style={{ marginBottom: 20 }}>
+                                <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Cancellation policy</Text>
+                                <TextInput
+                                    style={{
+                                        padding: 15,
+                                        borderRadius: 5,
+                                        borderWidth: 1,
+                                        borderColor: '#ccc',
+                                        backgroundColor: '#fff',
+                                    }}
+                                    placeholder="Days"
+                                    onChangeText={handleChange('cancellationPolicy')}
+                                    onBlur={handleBlur('cancellationPolicy')}
+                                    value={values.cancellationPolicy}
+                                />
+                                {touched.cancellationPolicy && errors.cancellationPolicy && (
+                                    <Text style={{ color: 'red', marginTop: 5 }}>{errors.cancellationPolicy}</Text>
+                                )}
+                            </View>
 
                             <Button
+                                mode="contained"
                                 onPress={handleSubmit}
-                                style={{
-                                    backgroundColor: theme.colors.primary,
-                                    padding: 8,
-                                    marginTop: 20,
-                                    borderRadius: 8,
-                                }}>
-                                <Text style={{ color: theme.colors.background, fontWeight: 'bold' }}>Save</Text>
+                                contentStyle={{ padding: "2%",  alignItems: 'center' }}
+                            >
+                                Publish shift
+                            </Button>
+                            <Button
+                                mode="outlined"
+                                onPress={() => navigation.goBack()}
+                                style={{ marginTop: 10, padding: "2%", borderRadius: 5, alignItems: 'center' }}
+                            >
+                                Cancel
                             </Button>
                         </View>
                     )}
                 </Formik>
             </ScrollView>
+
+            <Modal visible={modalVisible} animationType="slide">
+                <View style={{
+                    flex: 1,
+                    padding: 20,
+                    backgroundColor: theme.colors.background,
+                }}>
+                    <IconButton
+                        onPress={() => setModalVisible(false)}
+                        icon="close"
+                        iconColor={theme.colors.onBackground}
+                        size={25}
+                        style={{ alignSelf: "flex-end" }}
+                    />
+                    <FlatList
+                        data={data?.projects}
+                        renderItem={({ item }) => <RenderItem item={item} />
+                        }
+                        ListEmptyComponent={() => (
+                            <View style={{
+                                flex: 1,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}>
+                                <Text>{isLoading ? 'Loading...' : 'No businesses found'}</Text>
+                            </View>
+                        )} />
+                </View>
+            </Modal>
         </View>
     );
 };

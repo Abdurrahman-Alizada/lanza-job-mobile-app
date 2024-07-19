@@ -1,13 +1,17 @@
 import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import JobsDetailsAppbar from '../../../../components/Appbars/JobsDetailsAppbar';
 import React, { useState } from 'react';
-import { Card, useTheme, Checkbox, IconButton, Avatar, Chip, Button } from 'react-native-paper';
-import { useGetJobDetailsQuery } from '../../../../redux/reducers/jobs/jobThunk';
+import { Card, useTheme, Checkbox, IconButton, Avatar, Chip, Button, ActivityIndicator } from 'react-native-paper';
+import { jobApi, useGetJobDetailsQuery } from '../../../../redux/reducers/jobs/jobThunk';
+import moment from 'moment';
+import { useCreateApplyMutation } from '../../../../redux/reducers/apply/applyThunk';
+import { useDispatch, useSelector } from 'react-redux';
 
 const JobDetailsScreen = ({ navigation, route }) => {
   const theme = useTheme();
-  const data = [1, 2, 3, 4, 5]; // Replace with your actual data
+  const dispatch = useDispatch();
 
+  const currentLoginUser = useSelector(state => state.user.currentLoginUser)
   const [checked, setChecked] = useState({});
   const { jobId } = route?.params;
 
@@ -21,97 +25,19 @@ const JobDetailsScreen = ({ navigation, route }) => {
   ];
 
   const {
-    data: JobDetails,
+    data: item,
     isError,
     error,
     isLoading,
     isFetching,
     refetch,
-  } = useGetJobDetailsQuery(jobId);
-
+  } = useGetJobDetailsQuery({ id: jobId, freeflexerId: currentLoginUser?.id });
   const handleCheckboxPress = (item) => {
     setChecked((prevState) => ({
       ...prevState,
       [item]: !prevState[item],
     }));
   };
-
-  const renderHeader = () => (
-    <View>
-      <Card
-        style={{
-          backgroundColor: theme.colors.background,
-          marginTop: 30,
-          marginHorizontal: 15,
-          borderRadius: 5,
-          padding: '3%',
-        }}
-      >
-        <Card.Content>
-          <Text style={{ color: theme.colors.placeholder, fontSize: 12 }}>
-            Tuesday, 4 June
-          </Text>
-        </Card.Content>
-        <Card.Title
-          title={JobDetails?.job?.title}
-          subtitle="17:00 - 1:00"
-          left={(props) => <Avatar.Icon {...props} icon="folder" />}
-          right={(props) => (
-            <IconButton
-              {...props}
-              icon="bookmark-multiple-outline"
-              iconColor={theme.colors.primary}
-              onPress={() => console.log("bookmark button")}
-            />
-          )}
-        />
-        <View
-          style={{
-            borderBottomColor: theme.colors.primary,
-            borderBottomWidth: 1,
-            marginVertical: 8,
-            marginLeft: 15,
-            marginRight: 15,
-          }}
-        />
-        <Text
-          style={{
-            fontWeight: 'bold',
-            marginLeft: 15,
-            marginTop: 11,
-          }}
-        >
-          Head waiter - 2.5 km
-        </Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            marginLeft: 15,
-            marginTop: 10,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontWeight: '700', color: '#0000ff' }}>$16.00/hr</Text>
-            <Text
-              style={{
-                color: theme.colors.placeholder,
-                fontSize: 12,
-                marginLeft: 10,
-              }}
-            >
-              Estimated $16.00/hr
-            </Text>
-          </View>
-        </View>
-      </Card>
-
-      <Text style={{ color: 'black', marginLeft: 15, marginTop: 20, fontSize: 18, fontWeight: 'bold' }}>
-        Shifts
-      </Text>
-    </View>
-  );
 
   const renderFooter = () => (
     <View>
@@ -185,76 +111,159 @@ const JobDetailsScreen = ({ navigation, route }) => {
           />
         </View>
       </View>
-      <View style={{ flexDirection: 'row', marginLeft: 15, marginTop: 40, justifyContent: "space-between" }}>
-        <View style={{ flexDirection: "column" }}>
-          <Text style={{ fontWeight: '700', color: "black" }}>$15.00/hr for first shift</Text>
-          <Text style={{ color: '#0000ff', fontSize: 15 }}>Negotiate rate</Text>
-        </View>
-        <Button onPress={() => navigation.navigate('FreeFlexerTermsAndConditions')}
-          style={{ borderRadius: 6, backgroundColor: theme.colors.primary, marginRight: 15, width: '40%', height: '100%' }}>
-          <Text style={{ color: theme.colors.background }}>Continue</Text>
-        </Button>
-      </View>
+
     </View>
   );
 
+  const getAvatarSource = () => {
+    if (item?.business?.photos && item?.business.photos.length > 0) {
+      return { uri: item?.business?.photos[0] };
+    } else {
+      return require('../../../../assets/profilepic.png');
+    }
+  };
+
+  const [createApply, { isLoading: createApplyLoading }] = useCreateApplyMutation();
+
+  const handleApply = async () => {
+
+    createApply({
+      jobId: item._id,
+      freeflexerId: currentLoginUser.id,
+      coverLetter: "This is cover letter"
+    }).then((src) => {
+      if (src?.data?.application) {
+        dispatch(jobApi.util.invalidateTags(['JobDetails']));
+        navigation.goBack();
+      }
+    })
+
+  };
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <JobsDetailsAppbar />
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
-        {renderHeader()}
-        {data.map((item) => (
-          <Card
-            key={item}
-            style={{
-              backgroundColor: theme.colors.lightgrey,
-              marginTop: 30,
-              marginHorizontal: 15,
-              borderRadius: 5,
-              padding: '3%',
-            }}
-          >
-            <Card.Title
-              title="Sat, 8 June"
-              subtitle="17:00 - 1:00"
-              left={(props) => (
-                <Checkbox
-                  status={checked[item] ? 'checked' : 'unchecked'}
-                  onPress={() => handleCheckboxPress(item)}
-                  color={theme.colors.primary}
-                />
-              )}
-              right={(props) => (
-                <IconButton
-                  {...props}
-                  icon="bookmark-multiple-outline"
-                  iconColor={theme.colors.primary}
-                  onPress={() => { }}
-                />
-              )}
-            />
-            <View
+      {isLoading ?
+        <ActivityIndicator style={{ marginTop: "5%" }} />
+        :
+        <View style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
+
+            <Card
               style={{
-                borderBottomColor: theme.colors.placeholder,
-                borderBottomWidth: 1,
-                marginVertical: 8,
-                marginLeft: 15,
-                marginRight: 15,
+                backgroundColor: theme.colors.background,
+                margin: "2%",
+                borderRadius: 5,
+                padding: "3%"
               }}
-            />
-            <Text
+
+            >
+              <Card.Content>
+                <Text style={{ color: theme.colors.placeholder, fontSize: 12 }}>{moment(item?.availability?.from).format("dddd, D MMMM")} </Text>
+
+              </Card.Content>
+              <Card.Title
+                title={item?.business?.name}
+                subtitle={`${moment(item?.availability?.from).format("hh:mm")}-${moment(item?.availability?.to).format("hh:mm")}`}
+                left={(props) => <Avatar.Image {...props} source={getAvatarSource()} />}
+                right={(props) => (
+                  <IconButton
+                    {...props}
+                    icon="bookmark-multiple-outline"
+                    iconColor={theme.colors.primary}
+                    onPress={() => { }}
+                  />
+                )}
+
+              /><View
+                style={{
+                  borderBottomColor: theme.colors.primary,
+                  borderBottomWidth: 1,
+                  marginVertical: 8,
+                  marginLeft: 15,
+                  marginRight: 15,
+                }}
+              />
+              <Text style={{ fontWeight: 'bold', marginLeft: 15, marginTop: 11 }}>{item?.title} - 2.5 km</Text>
+              <View style={{ flexDirection: 'row', marginLeft: 15, marginTop: 10, justifyContent: "space-between", alignItems: "center" }}>
+                {/* <View style={{ flexDirection: "row", alignItems: "center" }}>
+
+              <Text style={{ fontWeight: '700', color: theme.colors.blue }}>${item?.hourlyRate}.00 / hr</Text>
+              <Text style={{ color: theme.colors.placeholder, fontSize: 12, marginLeft: 10 }}>Estimated $16.00/hr</Text>
+            </View> */}
+              </View>
+            </Card>
+
+            <Text style={{ color: 'black', marginLeft: 15, marginTop: 20, fontSize: 18, fontWeight: 'bold' }}>
+              Shifts
+            </Text>
+            <Card
               style={{
-                color: theme.colors.placeholder,
-                fontSize: 12,
-                marginLeft: 10,
+                backgroundColor: theme.colors.lightgrey,
+                marginTop: 30,
+                marginHorizontal: 15,
+                borderRadius: 5,
+                padding: '3%',
               }}
             >
-              Cancel at least 24 hours in advance
-            </Text>
-          </Card>
-        ))}
-        {renderFooter()}
-      </ScrollView>
+              <Card.Title
+                title="Sat, 8 June"
+                subtitle="17:00 - 1:00"
+                left={(props) => (
+                  <Checkbox
+                    {...props}
+                    status={checked[item] ? 'checked' : 'unchecked'}
+                    onPress={() => handleCheckboxPress(item)}
+                    color={theme.colors.primary}
+                  />
+                )}
+                right={(props) => (
+                  <IconButton
+                    {...props}
+                    icon="bookmark-multiple-outline"
+                    iconColor={theme.colors.primary}
+                    onPress={() => { }}
+                  />
+                )}
+              />
+              <View
+                style={{
+                  borderBottomColor: theme.colors.placeholder,
+                  borderBottomWidth: 1,
+                  marginVertical: 8,
+                  marginLeft: 15,
+                  marginRight: 15,
+                }}
+              />
+              <Text
+                style={{
+                  color: theme.colors.placeholder,
+                  fontSize: 12,
+                  marginLeft: 10,
+                }}
+              >
+                Cancel at least 24 hours in advance
+              </Text>
+            </Card>
+            {renderFooter()}
+          </ScrollView>
+          <View style={{ flexDirection: 'row', paddingHorizontal: "5%", paddingVertical: "10%", justifyContent: "space-between", alignItems: "center" }}>
+            <View style={{}}>
+              <Text style={{ fontWeight: '700', color: "black" }}>${item?.hourlyRate} / hr for first shift</Text>
+              <Text style={{ color: theme.colors.blue, fontSize: 15 }}>Negotiate rate</Text>
+            </View>
+            <Button onPress={handleApply}
+              disabled={createApplyLoading || item?.isApplied}
+              loading={createApplyLoading}
+              contentStyle={{ padding: "2%" }}
+              style={{ padding: "2%" }}
+              theme={{ roundness: 20 }}
+              mode="contained"
+            >
+              {item?.isApplied ? "Already applied" : "Apply"}
+            </Button>
+          </View>
+        </View>
+      }
     </View>
   );
 };

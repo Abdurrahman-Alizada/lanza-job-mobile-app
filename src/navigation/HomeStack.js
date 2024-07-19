@@ -132,9 +132,13 @@ const AppStack = () => {
       <Stack.Screen
         name="CreateProject"
         component={CreateProject}
-        options={{ headerShown: false }}
+        options={{
+          header: props => (
+            <ContractorDashboardGeneralAppbar greetingText={'Create project'} {...props} />
+          )
+        }}
       />
-            <Stack.Screen
+        <Stack.Screen
         name="UpdateProject"
         component={UpdateProject}
         options={{
