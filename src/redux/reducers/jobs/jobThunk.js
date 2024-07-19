@@ -13,7 +13,7 @@ export const jobApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Job'],
+  tagTypes: ['Job', "JobDetails"],
   reducerPath: 'jobApi',
   endpoints: build => ({
 
@@ -26,12 +26,12 @@ export const jobApi = createApi({
       invalidatesTags: ["Job"],
     }),
     getAllJobs: build.query({
-      query: filters => `/jobs/getAll?${filters}`,
+      query: data => `/jobs/getAll/${data.freeflexerId}?${data.filters}`,
       providesTags: ['Job'],
     }),
     getJobDetails: build.query({
-      query: id => `/jobs/getJobDetails/${id}`,
-      providesTags: ['Job'],
+      query: data => `/jobs/getJobDetails/${data.id}/${data.freeflexerId}`,
+      providesTags: ['Job',"JobDetails"],
     }),
 
   }),

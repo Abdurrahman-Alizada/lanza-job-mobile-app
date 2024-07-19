@@ -1,14 +1,16 @@
 import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import JobsDetailsAppbar from '../../../../components/Appbars/JobsDetailsAppbar';
 import React, { useState } from 'react';
-import { Card, useTheme, Checkbox, IconButton, Avatar, Chip, Button } from 'react-native-paper';
-import { useGetJobDetailsQuery } from '../../../../redux/reducers/jobs/jobThunk';
+import { Card, useTheme, Checkbox, IconButton, Avatar, Chip, Button, ActivityIndicator } from 'react-native-paper';
+import { jobApi, useGetJobDetailsQuery } from '../../../../redux/reducers/jobs/jobThunk';
 import moment from 'moment';
 import { useCreateApplyMutation } from '../../../../redux/reducers/apply/applyThunk';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const JobDetailsScreen = ({ navigation, route }) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
+
   const currentLoginUser = useSelector(state => state.user.currentLoginUser)
   const [checked, setChecked] = useState({});
   const { jobId } = route?.params;
@@ -29,8 +31,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
     isLoading,
     isFetching,
     refetch,
-  } = useGetJobDetailsQuery(jobId);
-
+  } = useGetJobDetailsQuery({ id: jobId, freeflexerId: currentLoginUser?.id });
   const handleCheckboxPress = (item) => {
     setChecked((prevState) => ({
       ...prevState,
@@ -131,130 +132,138 @@ const JobDetailsScreen = ({ navigation, route }) => {
       freeflexerId: currentLoginUser.id,
       coverLetter: "This is cover letter"
     }).then((src) => {
-      console.log("create apply", src)
-      navigation.goBack();
+      if (src?.data?.application) {
+        dispatch(jobApi.util.invalidateTags(['JobDetails']));
+        navigation.goBack();
+      }
     })
 
   };
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <JobsDetailsAppbar />
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
+      {isLoading ?
+        <ActivityIndicator style={{ marginTop: "5%" }} />
+        :
+        <View style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
 
-        <Card
-          style={{
-            backgroundColor: theme.colors.background,
-            margin: "2%",
-            borderRadius: 5,
-            padding: "3%"
-          }}
+            <Card
+              style={{
+                backgroundColor: theme.colors.background,
+                margin: "2%",
+                borderRadius: 5,
+                padding: "3%"
+              }}
 
-        >
-          <Card.Content>
-            <Text style={{ color: theme.colors.placeholder, fontSize: 12 }}>{moment(item?.availability?.from).format("dddd, D MMMM")} </Text>
+            >
+              <Card.Content>
+                <Text style={{ color: theme.colors.placeholder, fontSize: 12 }}>{moment(item?.availability?.from).format("dddd, D MMMM")} </Text>
 
-          </Card.Content>
-          <Card.Title
-            title={item?.business?.name}
-            subtitle={`${moment(item?.availability?.from).format("hh:mm")}-${moment(item?.availability?.to).format("hh:mm")}`}
-            left={(props) => <Avatar.Image {...props} source={getAvatarSource()} />}
-            right={(props) => (
-              <IconButton
-                {...props}
-                icon="bookmark-multiple-outline"
-                iconColor={theme.colors.primary}
-                onPress={() => { }}
+              </Card.Content>
+              <Card.Title
+                title={item?.business?.name}
+                subtitle={`${moment(item?.availability?.from).format("hh:mm")}-${moment(item?.availability?.to).format("hh:mm")}`}
+                left={(props) => <Avatar.Image {...props} source={getAvatarSource()} />}
+                right={(props) => (
+                  <IconButton
+                    {...props}
+                    icon="bookmark-multiple-outline"
+                    iconColor={theme.colors.primary}
+                    onPress={() => { }}
+                  />
+                )}
+
+              /><View
+                style={{
+                  borderBottomColor: theme.colors.primary,
+                  borderBottomWidth: 1,
+                  marginVertical: 8,
+                  marginLeft: 15,
+                  marginRight: 15,
+                }}
               />
-            )}
-
-          /><View
-            style={{
-              borderBottomColor: theme.colors.primary,
-              borderBottomWidth: 1,
-              marginVertical: 8,
-              marginLeft: 15,
-              marginRight: 15,
-            }}
-          />
-          <Text style={{ fontWeight: 'bold', marginLeft: 15, marginTop: 11 }}>{item?.title} - 2.5 km</Text>
-          <View style={{ flexDirection: 'row', marginLeft: 15, marginTop: 10, justifyContent: "space-between", alignItems: "center" }}>
-            {/* <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ fontWeight: 'bold', marginLeft: 15, marginTop: 11 }}>{item?.title} - 2.5 km</Text>
+              <View style={{ flexDirection: 'row', marginLeft: 15, marginTop: 10, justifyContent: "space-between", alignItems: "center" }}>
+                {/* <View style={{ flexDirection: "row", alignItems: "center" }}>
 
               <Text style={{ fontWeight: '700', color: theme.colors.blue }}>${item?.hourlyRate}.00 / hr</Text>
               <Text style={{ color: theme.colors.placeholder, fontSize: 12, marginLeft: 10 }}>Estimated $16.00/hr</Text>
             </View> */}
-          </View>
-        </Card>
+              </View>
+            </Card>
 
-        <Text style={{ color: 'black', marginLeft: 15, marginTop: 20, fontSize: 18, fontWeight: 'bold' }}>
-          Shifts
-        </Text>
-        <Card
-          style={{
-            backgroundColor: theme.colors.lightgrey,
-            marginTop: 30,
-            marginHorizontal: 15,
-            borderRadius: 5,
-            padding: '3%',
-          }}
-        >
-          <Card.Title
-            title="Sat, 8 June"
-            subtitle="17:00 - 1:00"
-            left={(props) => (
-              <Checkbox
-                {...props}
-                status={checked[item] ? 'checked' : 'unchecked'}
-                onPress={() => handleCheckboxPress(item)}
-                color={theme.colors.primary}
+            <Text style={{ color: 'black', marginLeft: 15, marginTop: 20, fontSize: 18, fontWeight: 'bold' }}>
+              Shifts
+            </Text>
+            <Card
+              style={{
+                backgroundColor: theme.colors.lightgrey,
+                marginTop: 30,
+                marginHorizontal: 15,
+                borderRadius: 5,
+                padding: '3%',
+              }}
+            >
+              <Card.Title
+                title="Sat, 8 June"
+                subtitle="17:00 - 1:00"
+                left={(props) => (
+                  <Checkbox
+                    {...props}
+                    status={checked[item] ? 'checked' : 'unchecked'}
+                    onPress={() => handleCheckboxPress(item)}
+                    color={theme.colors.primary}
+                  />
+                )}
+                right={(props) => (
+                  <IconButton
+                    {...props}
+                    icon="bookmark-multiple-outline"
+                    iconColor={theme.colors.primary}
+                    onPress={() => { }}
+                  />
+                )}
               />
-            )}
-            right={(props) => (
-              <IconButton
-                {...props}
-                icon="bookmark-multiple-outline"
-                iconColor={theme.colors.primary}
-                onPress={() => { }}
+              <View
+                style={{
+                  borderBottomColor: theme.colors.placeholder,
+                  borderBottomWidth: 1,
+                  marginVertical: 8,
+                  marginLeft: 15,
+                  marginRight: 15,
+                }}
               />
-            )}
-          />
-          <View
-            style={{
-              borderBottomColor: theme.colors.placeholder,
-              borderBottomWidth: 1,
-              marginVertical: 8,
-              marginLeft: 15,
-              marginRight: 15,
-            }}
-          />
-          <Text
-            style={{
-              color: theme.colors.placeholder,
-              fontSize: 12,
-              marginLeft: 10,
-            }}
-          >
-            Cancel at least 24 hours in advance
-          </Text>
-        </Card>
-        {renderFooter()}
-      </ScrollView>
-      <View style={{ flexDirection: 'row', paddingHorizontal: "5%", paddingVertical: "10%", justifyContent: "space-between", alignItems: "center" }}>
-        <View style={{}}>
-          <Text style={{ fontWeight: '700', color: "black" }}>${item?.hourlyRate} / hr for first shift</Text>
-          <Text style={{ color: '#0000ff', fontSize: 15 }}>Negotiate rate</Text>
+              <Text
+                style={{
+                  color: theme.colors.placeholder,
+                  fontSize: 12,
+                  marginLeft: 10,
+                }}
+              >
+                Cancel at least 24 hours in advance
+              </Text>
+            </Card>
+            {renderFooter()}
+          </ScrollView>
+          <View style={{ flexDirection: 'row', paddingHorizontal: "5%", paddingVertical: "10%", justifyContent: "space-between", alignItems: "center" }}>
+            <View style={{}}>
+              <Text style={{ fontWeight: '700', color: "black" }}>${item?.hourlyRate} / hr for first shift</Text>
+              <Text style={{ color: theme.colors.blue, fontSize: 15 }}>Negotiate rate</Text>
+            </View>
+            <Button onPress={handleApply}
+              disabled={createApplyLoading || item?.isApplied}
+              loading={createApplyLoading}
+              contentStyle={{ padding: "2%" }}
+              style={{ padding: "2%" }}
+              theme={{ roundness: 20 }}
+              mode="contained"
+            >
+              {item?.isApplied ? "Already applied" : "Apply"}
+            </Button>
+          </View>
         </View>
-        <Button onPress={handleApply}
-          disabled={createApplyLoading}
-          loading={createApplyLoading}
-          contentStyle={{ padding: "2%" }}
-          style={{ padding: "2%" }}
-          theme={{ roundness: 20 }}
-          mode="contained"
-        >
-          Apply
-        </Button>
-      </View>
+      }
     </View>
   );
 };

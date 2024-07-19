@@ -6,8 +6,10 @@ import { useNavigation } from '@react-navigation/native';
 import { useGetAllJobsQuery } from '../../../redux/reducers/jobs/jobThunk';
 import JobsCardsSkeleton from '../../../skeleton/JobsCards';
 import moment from 'moment';
+import { useSelector } from 'react-redux';
 
 const FreeflexerHomeScreen = ({ route }) => {
+  const currentLoginUser = useSelector(state=>state.user.currentLoginUser)
   const [searchQuery, setSearchQuery] = useState('');
   const theme = useTheme();
   const navigation = useNavigation();
@@ -19,8 +21,7 @@ const FreeflexerHomeScreen = ({ route }) => {
     isLoading,
     isFetching,
     refetch,
-  } = useGetAllJobsQuery(route.params?.filters);
-
+  } = useGetAllJobsQuery({freeflexerId:currentLoginUser.id, filters: route.params?.filters});
   useEffect(() => {
     if (route.params?.filters) {
       refetch()
