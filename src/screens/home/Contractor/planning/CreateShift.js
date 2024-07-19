@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Switch, TouchableOpacity, ScrollView, Modal, FlatList } from 'react-native';
+import { View, Text, TextInput, Switch, TouchableOpacity, ScrollView, Modal, FlatList, Image } from 'react-native';
 import { Button, IconButton, useTheme } from 'react-native-paper';
 import DatePicker from 'react-native-date-picker';
 import { Formik } from 'formik';
@@ -7,10 +7,13 @@ import * as Yup from 'yup';
 import { useGetAllProjectsQuery } from '../../../../redux/reducers/projects/projectThunk';
 import { useSelector } from 'react-redux';
 import { useCreateJobMutation } from '../../../../redux/reducers/jobs/jobThunk';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const CreateShift = ({ navigation }) => {
     const currentLoginUser = useSelector(state => state.user.currentLoginUser);
     const theme = useTheme();
+
+    const [logo, setLogo] = useState(null);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedProject, setSelectedBusiness] = useState(null);
@@ -32,24 +35,92 @@ const CreateShift = ({ navigation }) => {
 
     const [createJob, { isLoading: createJobLoading }] = useCreateJobMutation();
 
+
+    const uploadImage = async (image) => {
+        const formData = new FormData();
+        formData.append('file', {
+            uri: image.uri,
+            type: image.type,
+            name: image.fileName || 'image.jpg',
+        });
+        formData.append('upload_preset', 'bzgif1or'); // Replace with your upload preset if needed
+        try {
+
+            const response = await fetch('https://api.cloudinary.com/v1_1/dblhm3cbq/image/upload', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await response.json();
+            return data.secure_url; // Cloudinary URL
+        } catch (error) {
+            console.error('Image upload failed', error);
+            throw new Error('Image upload failed');
+        }
+    };
+
     const handleCreateShift = async (values) => {
         if (selectedProject) {
-            const newProject = {
-                ...values,
-                project: selectedProject._id,
-                business: selectedProject.business?._id,
-                contractorId: currentLoginUser.id,
-                availability: {
-                    from: startDate,
-                    to: endDate,
-                },
-            };
-            await createJob(newProject).then(() => {
-                navigation.goBack();
-            });
+            try {
+                let jobImageUrl = '';
+                if (logo) {
+                    jobImageUrl = await uploadImage(logo);
+                }
+
+                const newJob = {
+                    ...values,
+                    project: selectedProject._id,
+                    business: selectedProject.business?._id,
+                    contractorId: currentLoginUser.id,
+                    availability: {
+                        from: startDate,
+                        to: endDate,
+                    },
+                    jobImage: jobImageUrl, // Include the image URL in the request
+                };
+
+                await createJob(newJob).then((res) => {
+                    console.log("res is", res)
+                    navigation.goBack();
+                });
+            } catch (error) {
+                console.error('Failed to create job', error);
+                alert('Failed to create job');
+            }
         } else {
             alert('Please select a business.');
         }
+    };
+
+
+    // const handleCreateShift = async (values) => {
+    //     if (selectedProject) {
+    //         const newProject = {
+    //             ...values,
+    //             project: selectedProject._id,
+    //             business: selectedProject.business?._id,
+    //             contractorId: currentLoginUser.id,
+    //             availability: {
+    //                 from: startDate,
+    //                 to: endDate,
+    //             },
+    //         };
+    //         await createJob(newProject).then(() => {
+    //             navigation.goBack();
+    //         });
+    //     } else {
+    //         alert('Please select a business.');
+    //     }
+    // };
+
+    const handleChooseLogo = () => {
+        const options = {
+            noData: true,
+        };
+        launchImageLibrary(options, (response) => {
+            if (response.assets[0]?.uri) {
+                setLogo(response.assets[0]);
+            }
+        });
     };
 
     const RenderItem = ({ item }) => (
@@ -71,6 +142,30 @@ const CreateShift = ({ navigation }) => {
     return (
         <View style={{ flex: 1, padding: "5%", backgroundColor: theme.colors.background }}>
             <ScrollView>
+
+                <TouchableOpacity style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: 150,
+                    backgroundColor: '#E0E0E0',
+                    borderRadius: 8,
+                    marginBottom: 20
+                }} onPress={handleChooseLogo}>
+
+                    {logo ? (
+                        <Image source={{ uri: logo.uri }} style={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: 8,
+                        }} />
+                    ) : (
+                        <Text style={{
+                            color: '#757575',
+                            fontSize: 18,
+                        }}>Upload Company logo</Text>
+                    )}
+                </TouchableOpacity>
+
                 <TouchableOpacity onPress={() => setModalVisible(true)} style={{ marginVertical: "5%" }}>
                     <Text style={{
                         marginBottom: 5,
