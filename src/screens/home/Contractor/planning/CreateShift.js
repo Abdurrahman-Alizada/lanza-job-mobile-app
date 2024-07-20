@@ -8,8 +8,9 @@ import { useGetAllProjectsQuery } from '../../../../redux/reducers/projects/proj
 import { useSelector } from 'react-redux';
 import { useCreateJobMutation } from '../../../../redux/reducers/jobs/jobThunk';
 import { launchImageLibrary } from 'react-native-image-picker';
+import Shift from './Shifts'; 
 
-const CreateShift = ({ navigation }) => {
+const CreateJob = ({ navigation }) => {
     const currentLoginUser = useSelector(state => state.user.currentLoginUser);
     const theme = useTheme();
 
@@ -35,6 +36,11 @@ const CreateShift = ({ navigation }) => {
 
     const [createJob, { isLoading: createJobLoading }] = useCreateJobMutation();
 
+    const [shifts, setShifts] = useState([]);
+
+    const handleAddShift = (newShift) => {
+        setShifts([...shifts, newShift]);
+    };
 
     const uploadImage = async (image) => {
         const formData = new FormData();
@@ -43,7 +49,9 @@ const CreateShift = ({ navigation }) => {
             type: image.type,
             name: image.fileName || 'image.jpg',
         });
-        formData.append('upload_preset', 'bzgif1or'); // Replace with your upload preset if needed
+        formData.append('upload_preset', 'lanzajob-jobImages'); 
+        formData.append('folder', "lanzajob-jobImages"); // Specify the folder
+
         try {
 
             const response = await fetch('https://api.cloudinary.com/v1_1/dblhm3cbq/image/upload', {
@@ -58,7 +66,7 @@ const CreateShift = ({ navigation }) => {
         }
     };
 
-    const handleCreateShift = async (values) => {
+    const handleCreateJob = async (values) => {
         if (selectedProject) {
             try {
                 let jobImageUrl = '';
@@ -75,7 +83,8 @@ const CreateShift = ({ navigation }) => {
                         from: startDate,
                         to: endDate,
                     },
-                    jobImage: jobImageUrl, // Include the image URL in the request
+                    jobImage: jobImageUrl,
+                    shifts
                 };
 
                 await createJob(newJob).then((res) => {
@@ -90,27 +99,6 @@ const CreateShift = ({ navigation }) => {
             alert('Please select a business.');
         }
     };
-
-
-    // const handleCreateShift = async (values) => {
-    //     if (selectedProject) {
-    //         const newProject = {
-    //             ...values,
-    //             project: selectedProject._id,
-    //             business: selectedProject.business?._id,
-    //             contractorId: currentLoginUser.id,
-    //             availability: {
-    //                 from: startDate,
-    //                 to: endDate,
-    //             },
-    //         };
-    //         await createJob(newProject).then(() => {
-    //             navigation.goBack();
-    //         });
-    //     } else {
-    //         alert('Please select a business.');
-    //     }
-    // };
 
     const handleChooseLogo = () => {
         const options = {
@@ -181,6 +169,8 @@ const CreateShift = ({ navigation }) => {
                     }}>{selectedProject ? selectedProject.name : 'Select Business'}</Text>
                 </TouchableOpacity>
 
+                <Shift existingShifts={shifts} onAddShift={handleAddShift} />
+
                 <Formik
                     initialValues={{
                         title: '',
@@ -189,7 +179,7 @@ const CreateShift = ({ navigation }) => {
                         cancellationPolicy: '',
                     }}
                     validationSchema={validationSchema}
-                    onSubmit={handleCreateShift}
+                    onSubmit={handleCreateJob}
                 >
                     {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                         <View>
@@ -353,7 +343,7 @@ const CreateShift = ({ navigation }) => {
                                 onPress={handleSubmit}
                                 contentStyle={{ padding: "2%", alignItems: 'center' }}
                             >
-                                Publish shift
+                                Publish Job
                             </Button>
                             <Button
                                 mode="outlined"
@@ -399,4 +389,4 @@ const CreateShift = ({ navigation }) => {
     );
 };
 
-export default CreateShift;
+export default CreateJob;

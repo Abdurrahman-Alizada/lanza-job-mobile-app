@@ -22,7 +22,7 @@ import CheckoutIndex from '../screens/home/Contractor/checkouts/Checkouts';
 import FlexpoolIndex from '../screens/home/Contractor/flexpools/FlexpoolIndex';
 import BusinessesIndex from '../screens/home/Contractor/businesses/BusinessesIndex';
 import CreateBusiness from '../screens/home/Contractor/businesses/CreateBusiness';
-import CreateShift from '../screens/home/Contractor/planning/CreateShift';
+import CreateJob from '../screens/home/Contractor/planning/CreateShift';
 import ContractorDashboardGeneralAppbar from '../components/Appbars/ContractorDashboardGeneralAppbar';
 import FreeflexerMenuIndex from '../screens/home/Freeflexer/Menu/MenuIndex';
 import BusinessDetail from '../screens/home/Contractor/businesses/BusinessDetail';
@@ -87,7 +87,7 @@ const AppStack = () => {
       />
       <Stack.Screen
         name="CreateShift"
-        component={CreateShift}
+        component={CreateJob}
         options={{
           header: props => (
             <ContractorDashboardGeneralAppbar greetingText={'Create shift'} {...props} />
