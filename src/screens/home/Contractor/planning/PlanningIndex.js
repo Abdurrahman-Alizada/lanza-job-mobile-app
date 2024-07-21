@@ -13,7 +13,7 @@ const PlanningIndex = ({navigation}) => {
       <View style={{flexDirection:"row", justifyContent:"space-between",alignItems:"center", padding: "4%", }}>
         <Text style={{fontWeight:"800", fontSize:16}}>Week 00</Text>
         <TouchableOpacity onPress={()=>navigation.navigate("CreateShift")} style={{ padding: "3%", width: "45%", borderRadius: 5, backgroundColor: theme.colors.primary }}>
-          <Text style={{ color: theme.colors.onPrimary, fontWeight: "700", alignSelf: "center" }}>Create shift</Text>
+          <Text style={{ color: theme.colors.onPrimary, fontWeight: "700", alignSelf: "center" }}>Create job</Text>
         </TouchableOpacity>
       </View>
 

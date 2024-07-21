@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, Checkbox, Button, IconButton, useTheme, Icon, RadioButton } from 'react-native-paper';
-import { Slider } from '@rneui/themed';
+import { Text, Checkbox, Button, IconButton, useTheme, Icon, RadioButton, Appbar } from 'react-native-paper';
+// import { Slider } from '@rneui/themed';
 
 const MainJobsFilterScreen = ({ navigation }) => {
     const theme = useTheme();
@@ -11,7 +11,7 @@ const MainJobsFilterScreen = ({ navigation }) => {
     const [hourlyRate, setHourlyRate] = useState(0);
     const [languages, setLanguages] = useState(null);
 
-    const [applicantsCount] = useState([0,10,20]);
+    const [applicantsCount] = useState([0, 10, 20]);
     const [selectedApplicantsCount, setSelectedApplicantsCount] = useState([]);
 
     const [selectedTags, setSelectedTags] = useState([]);
@@ -35,7 +35,7 @@ const MainJobsFilterScreen = ({ navigation }) => {
 
     const viewResultHandler = () => {
         const filters = `tags=${selectedTags}&applicantCounts=${selectedApplicantsCount}`
-        navigation.replace("FreeflexerHomeScreen",{filters})
+        navigation.replace("FreeflexerHomeScreen", { filters })
     }
 
     const handleTagToggle = (tagValue) => {
@@ -46,21 +46,28 @@ const MainJobsFilterScreen = ({ navigation }) => {
         }
     };
 
-    
+
     const clearFilters = () => {
         setAvailability('Anytime');
         setDistance(0);
         setHourlyRate(0);
         setLanguages(null);
     };
-    
+
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-            <View style={{
+            {/* <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: 16,
+
+            }}> */}
+            <Appbar.Header style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: "5%",
 
             }}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -70,7 +77,8 @@ const MainJobsFilterScreen = ({ navigation }) => {
                 <TouchableOpacity onPress={clearFilters}>
                     <Text style={{ fontSize: 16, color: 'blue' }}>Clear</Text>
                 </TouchableOpacity>
-            </View>
+            </Appbar.Header>
+            {/* </View> */}
             <ScrollView contentContainerStyle={{ padding: 16 }}>
                 <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>Competition</Text>
 
@@ -80,7 +88,7 @@ const MainJobsFilterScreen = ({ navigation }) => {
                             onPress={() => setSelectedApplicantsCount(count)}
                             key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                             <Checkbox
-                                status={selectedApplicantsCount === count  ? 'checked' : 'unchecked'}
+                                status={selectedApplicantsCount === count ? 'checked' : 'unchecked'}
                             />
                             <View style={{ marginLeft: 8 }}>
                                 <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{count} applications</Text>
@@ -152,7 +160,7 @@ const MainJobsFilterScreen = ({ navigation }) => {
                             <Text style={{ color: theme.colors.placeholder }}>{distance} km</Text>
                         </View>
 
-                        <Slider
+                        {/* <Slider
                             value={distance}
                             maximumValue={100}
                             minimumValue={0}
@@ -162,7 +170,7 @@ const MainJobsFilterScreen = ({ navigation }) => {
                             maximumTrackTintColor={theme.colors.placeholder}
                             minimumTrackTintColor={theme.colors.primary}
                             onValueChange={(value) => setDistance(value)}
-                        />
+                        /> */}
 
                     </View>
                 </View>
@@ -193,7 +201,7 @@ const MainJobsFilterScreen = ({ navigation }) => {
                         </View>
 
 
-                        <Slider
+                        {/* <Slider
                             value={hourlyRate}
                             maximumValue={100}
                             minimumValue={0}
@@ -203,7 +211,7 @@ const MainJobsFilterScreen = ({ navigation }) => {
                             maximumTrackTintColor={theme.colors.placeholder}
                             minimumTrackTintColor={theme.colors.primary}
                             onValueChange={(value) => setHourlyRate(value)}
-                        />
+                        /> */}
 
                     </View>
                 </View>

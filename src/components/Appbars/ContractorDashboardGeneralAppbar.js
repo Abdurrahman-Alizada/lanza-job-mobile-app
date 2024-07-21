@@ -24,9 +24,6 @@ const ContractorDashboardGeneralAppbar = ({ greetingText = "Home" }) => {
                 />
                 <Text style={{ fontSize: 16, fontWeight: "800" }}>{greetingText}</Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate("FreeflexerDashboard")} style={{}}>
-                <Avatar.Icon icon={"account"} style={{ backgroundColor: theme.colors.background, borderWidth: 1, borderColor: theme.colors.onBackground }} size={35} />
-            </TouchableOpacity>
         </Appbar.Header>
     );
 };

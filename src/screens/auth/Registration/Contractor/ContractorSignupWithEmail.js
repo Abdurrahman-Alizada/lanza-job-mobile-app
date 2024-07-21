@@ -258,7 +258,7 @@ const ContractorSignupWithEmail = () => {
 
                 onPress={() =>
                   navigation.navigate('Main', {
-                    screen: 'HomeStack',
+                    screen: 'ContractorStack',
                     params: {
                       screen: 'ContractorTermsAndConditions',
                     },

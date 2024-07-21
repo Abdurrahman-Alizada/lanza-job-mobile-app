@@ -1,19 +1,20 @@
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
-import JobsDetailsAppbar from '../../../../components/Appbars/JobsDetailsAppbar';
 import React, { useState } from 'react';
-import { Card, useTheme, Checkbox, IconButton, Avatar, Chip, Button, ActivityIndicator } from 'react-native-paper';
-import { jobApi, useGetJobDetailsQuery } from '../../../../redux/reducers/jobs/jobThunk';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import JobsDetailsAppbar from '../../../../components/Appbars/JobsDetailsAppbar';
+import { Card, useTheme, IconButton, Avatar, Chip, Button, ActivityIndicator } from 'react-native-paper';
 import moment from 'moment';
-import { useCreateApplyMutation } from '../../../../redux/reducers/apply/applyThunk';
 import { useDispatch, useSelector } from 'react-redux';
+import { jobApi, useGetJobDetailsQuery } from '../../../../redux/reducers/jobs/jobThunk';
+import { useCreateApplyMutation } from '../../../../redux/reducers/apply/applyThunk';
+import ShiftCard from './ShiftCard'; // Import the ShiftCard component
 
 const JobDetailsScreen = ({ navigation, route }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
-
-  const currentLoginUser = useSelector(state => state.user.currentLoginUser)
-  const [checked, setChecked] = useState({});
+  const currentLoginUser = useSelector(state => state.user.currentLoginUser);
   const { jobId } = route?.params;
+
+  const [checkedShifts, setCheckedShifts] = useState([]);
 
   const chipsData = [
     'Walking with 3 plates',
@@ -32,11 +33,30 @@ const JobDetailsScreen = ({ navigation, route }) => {
     isFetching,
     refetch,
   } = useGetJobDetailsQuery({ id: jobId, freeflexerId: currentLoginUser?.id });
-  const handleCheckboxPress = (item) => {
-    setChecked((prevState) => ({
-      ...prevState,
-      [item]: !prevState[item],
-    }));
+
+  const [createApply, { isLoading: createApplyLoading }] = useCreateApplyMutation();
+
+  const handleCheckboxPress = (shift) => {
+    setCheckedShifts((prev) =>
+      prev.some((s) => s._id === shift._id)
+        ? prev.filter((s) => s._id !== shift._id)
+        : [...prev, shift]
+    );
+  };
+
+  const handleApply = async () => {
+    createApply({
+      jobId: item._id,
+      freeflexerId: currentLoginUser.id,
+      coverLetter: "This is cover letter",
+      shifts: checkedShifts // Adding selected shifts to the application
+    }).then((src) => {
+      console.log("first",src)
+      if (src?.data?.application) {
+        dispatch(jobApi.util.invalidateTags(['JobDetails']));
+        navigation.goBack();
+      }
+    });
   };
 
   const renderFooter = () => (
@@ -95,7 +115,8 @@ const JobDetailsScreen = ({ navigation, route }) => {
           {chipsData.map((item, index) => (
             <Chip
               key={index}
-              style={{ marginRight: '2%', marginTop: '4%', backgroundColor: theme.colors.lightgrey }} onPress={() => console.log('Pressed')}>
+              style={{ marginRight: '2%', marginTop: '4%', backgroundColor: theme.colors.lightgrey }}
+              onPress={() => console.log('Pressed')}>
               <Text style={{ color: theme.colors.backdrop }}>{item}</Text>
             </Chip>
           ))}
@@ -111,7 +132,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
           />
         </View>
       </View>
-
     </View>
   );
 
@@ -123,22 +143,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
     }
   };
 
-  const [createApply, { isLoading: createApplyLoading }] = useCreateApplyMutation();
-
-  const handleApply = async () => {
-
-    createApply({
-      jobId: item._id,
-      freeflexerId: currentLoginUser.id,
-      coverLetter: "This is cover letter"
-    }).then((src) => {
-      if (src?.data?.application) {
-        dispatch(jobApi.util.invalidateTags(['JobDetails']));
-        navigation.goBack();
-      }
-    })
-
-  };
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <JobsDetailsAppbar />
@@ -147,7 +151,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
         :
         <View style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
-
             <Card
               style={{
                 backgroundColor: theme.colors.background,
@@ -155,11 +158,9 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 borderRadius: 5,
                 padding: "3%"
               }}
-
             >
               <Card.Content>
                 <Text style={{ color: theme.colors.placeholder, fontSize: 12 }}>{moment(item?.availability?.from).format("dddd, D MMMM")} </Text>
-
               </Card.Content>
               <Card.Title
                 title={item?.business?.name}
@@ -173,8 +174,8 @@ const JobDetailsScreen = ({ navigation, route }) => {
                     onPress={() => { }}
                   />
                 )}
-
-              /><View
+              />
+              <View
                 style={{
                   borderBottomColor: theme.colors.primary,
                   borderBottomWidth: 1,
@@ -185,65 +186,23 @@ const JobDetailsScreen = ({ navigation, route }) => {
               />
               <Text style={{ fontWeight: 'bold', marginLeft: 15, marginTop: 11 }}>{item?.title} - 2.5 km</Text>
               <View style={{ flexDirection: 'row', marginLeft: 15, marginTop: 10, justifyContent: "space-between", alignItems: "center" }}>
-                {/* <View style={{ flexDirection: "row", alignItems: "center" }}>
-
-              <Text style={{ fontWeight: '700', color: theme.colors.blue }}>${item?.hourlyRate}.00 / hr</Text>
-              <Text style={{ color: theme.colors.placeholder, fontSize: 12, marginLeft: 10 }}>Estimated $16.00/hr</Text>
-            </View> */}
+                {/* Additional information */}
               </View>
             </Card>
 
             <Text style={{ color: 'black', marginLeft: 15, marginTop: 20, fontSize: 18, fontWeight: 'bold' }}>
               Shifts
             </Text>
-            <Card
-              style={{
-                backgroundColor: theme.colors.lightgrey,
-                marginTop: 30,
-                marginHorizontal: 15,
-                borderRadius: 5,
-                padding: '3%',
-              }}
-            >
-              <Card.Title
-                title="Sat, 8 June"
-                subtitle="17:00 - 1:00"
-                left={(props) => (
-                  <Checkbox
-                    {...props}
-                    status={checked[item] ? 'checked' : 'unchecked'}
-                    onPress={() => handleCheckboxPress(item)}
-                    color={theme.colors.primary}
-                  />
-                )}
-                right={(props) => (
-                  <IconButton
-                    {...props}
-                    icon="bookmark-multiple-outline"
-                    iconColor={theme.colors.primary}
-                    onPress={() => { }}
-                  />
-                )}
+
+            {item?.shifts?.map((shift) => (
+              <ShiftCard
+                key={shift._id}
+                shift={shift}
+                onCheckboxPress={handleCheckboxPress}
+                checked={checkedShifts.some(s => s._id === shift._id)}
               />
-              <View
-                style={{
-                  borderBottomColor: theme.colors.placeholder,
-                  borderBottomWidth: 1,
-                  marginVertical: 8,
-                  marginLeft: 15,
-                  marginRight: 15,
-                }}
-              />
-              <Text
-                style={{
-                  color: theme.colors.placeholder,
-                  fontSize: 12,
-                  marginLeft: 10,
-                }}
-              >
-                Cancel at least 24 hours in advance
-              </Text>
-            </Card>
+            ))}
+
             {renderFooter()}
           </ScrollView>
           <View style={{ flexDirection: 'row', paddingHorizontal: "5%", paddingVertical: "10%", justifyContent: "space-between", alignItems: "center" }}>
@@ -251,7 +210,8 @@ const JobDetailsScreen = ({ navigation, route }) => {
               <Text style={{ fontWeight: '700', color: "black" }}>${item?.hourlyRate} / hr for first shift</Text>
               <Text style={{ color: theme.colors.blue, fontSize: 15 }}>Negotiate rate</Text>
             </View>
-            <Button onPress={handleApply}
+            <Button
+              onPress={handleApply}
               disabled={createApplyLoading || item?.isApplied}
               loading={createApplyLoading}
               contentStyle={{ padding: "2%" }}

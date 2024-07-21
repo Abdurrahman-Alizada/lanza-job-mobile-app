@@ -57,9 +57,9 @@ const SplashScreen = ({ navigation }) => {
         } else if (!isLoggedIn) {
           screenTo = { name: "WelcomeScreen" };
         } else if (isLoggedIn && userRole.current === "freeflexer") {
-          screenTo = { name: "Main", params: { screen: "HomeStack", params: { screen: "FreeflexerHomeScreen" } } };
+          screenTo = { name: "Main", params: { screen: "FreeflexerStack", params: { screen: "FreeflexerHomeScreen" } } };
         } else if (isLoggedIn && userRole.current === "contractor") {
-          screenTo = { name: "Main", params: { screen: "HomeStack", params: { screen: "ContractorHomeScreen" } } };
+          screenTo = { name: "Main", params: { screen: "ContractorStack", params: { screen: "ContractorHomeScreen" } } };
         }
 
         navigation.replace(screenTo.name, screenTo.params);

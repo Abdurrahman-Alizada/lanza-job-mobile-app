@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Switch, TouchableOpacity, ScrollView, Modal, FlatList } from 'react-native';
+import { View, Text, TextInput, Switch, TouchableOpacity, ScrollView, Modal, FlatList, Image } from 'react-native';
 import { Button, IconButton, useTheme } from 'react-native-paper';
 import DatePicker from 'react-native-date-picker';
 import { Formik } from 'formik';
@@ -7,15 +7,21 @@ import * as Yup from 'yup';
 import { useGetAllProjectsQuery } from '../../../../redux/reducers/projects/projectThunk';
 import { useSelector } from 'react-redux';
 import { useCreateJobMutation } from '../../../../redux/reducers/jobs/jobThunk';
+import { launchImageLibrary } from 'react-native-image-picker';
+import Shift from './Shifts'; 
 
-const CreateShift = ({ navigation }) => {
+const CreateJob = ({ navigation }) => {
     const currentLoginUser = useSelector(state => state.user.currentLoginUser);
     const theme = useTheme();
 
+    const [logo, setLogo] = useState(null);
+
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedProject, setSelectedBusiness] = useState(null);
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [date, setDate] = useState(new Date());
+    const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+    const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
     const [autoAcceptFlexpools, setAutoAcceptFlexpools] = useState(false);
     const [autoAcceptRegulars, setAutoAcceptRegulars] = useState(false);
     const [smartPricing, setSmartPricing] = useState(false);
@@ -30,19 +36,80 @@ const CreateShift = ({ navigation }) => {
 
     const [createJob, { isLoading: createJobLoading }] = useCreateJobMutation();
 
-    const handleCreateShift = async (values) => {
-        console.log("first create")
-        if (selectedProject) {
-            const newProject = { ...values, project: selectedProject._id, business: selectedProject.business?._id, contractorId: currentLoginUser.id }
-            await createJob(newProject).then((res) => {
-                // console.log("job", res)
-                navigation.goBack();
+    const [shifts, setShifts] = useState([]);
+
+    const handleAddShift = (newShift) => {
+        setShifts([...shifts, newShift]);
+    };
+
+    const uploadImage = async (image) => {
+        const formData = new FormData();
+        formData.append('file', {
+            uri: image.uri,
+            type: image.type,
+            name: image.fileName || 'image.jpg',
+        });
+        formData.append('upload_preset', 'lanzajob-jobImages'); 
+        formData.append('folder', "lanzajob-jobImages"); // Specify the folder
+
+        try {
+
+            const response = await fetch('https://api.cloudinary.com/v1_1/dblhm3cbq/image/upload', {
+                method: 'POST',
+                body: formData,
             });
+            const data = await response.json();
+            return data.secure_url; // Cloudinary URL
+        } catch (error) {
+            console.error('Image upload failed', error);
+            throw new Error('Image upload failed');
+        }
+    };
+
+    const handleCreateJob = async (values) => {
+        if (selectedProject) {
+            try {
+                let jobImageUrl = '';
+                if (logo) {
+                    jobImageUrl = await uploadImage(logo);
+                }
+
+                const newJob = {
+                    ...values,
+                    project: selectedProject._id,
+                    business: selectedProject.business?._id,
+                    contractorId: currentLoginUser.id,
+                    availability: {
+                        from: startDate,
+                        to: endDate,
+                    },
+                    jobImage: jobImageUrl,
+                    shifts
+                };
+
+                await createJob(newJob).then((res) => {
+                    console.log("res is", res)
+                    navigation.goBack();
+                });
+            } catch (error) {
+                console.error('Failed to create job', error);
+                alert('Failed to create job');
+            }
         } else {
             alert('Please select a business.');
         }
     };
 
+    const handleChooseLogo = () => {
+        const options = {
+            noData: true,
+        };
+        launchImageLibrary(options, (response) => {
+            if (response.assets[0]?.uri) {
+                setLogo(response.assets[0]);
+            }
+        });
+    };
 
     const RenderItem = ({ item }) => (
         <TouchableOpacity
@@ -62,8 +129,30 @@ const CreateShift = ({ navigation }) => {
 
     return (
         <View style={{ flex: 1, padding: "5%", backgroundColor: theme.colors.background }}>
+            <ScrollView>
 
-            <ScrollView style={{}}>
+                <TouchableOpacity style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: 150,
+                    backgroundColor: theme.colors.lightBackground,
+                    borderRadius: 8,
+                    marginBottom: 20
+                }} onPress={handleChooseLogo}>
+
+                    {logo ? (
+                        <Image source={{ uri: logo.uri }} style={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: 8,
+                        }} />
+                    ) : (
+                        <Text style={{
+                            color: theme.colors.onBackground,
+                            fontSize: 18,
+                        }}>Upload Image</Text>
+                    )}
+                </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => setModalVisible(true)} style={{ marginVertical: "5%" }}>
                     <Text style={{
@@ -80,6 +169,8 @@ const CreateShift = ({ navigation }) => {
                     }}>{selectedProject ? selectedProject.name : 'Select Business'}</Text>
                 </TouchableOpacity>
 
+                <Shift existingShifts={shifts} onAddShift={handleAddShift} />
+
                 <Formik
                     initialValues={{
                         title: '',
@@ -88,7 +179,7 @@ const CreateShift = ({ navigation }) => {
                         cancellationPolicy: '',
                     }}
                     validationSchema={validationSchema}
-                    onSubmit={handleCreateShift}
+                    onSubmit={handleCreateJob}
                 >
                     {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                         <View>
@@ -113,9 +204,9 @@ const CreateShift = ({ navigation }) => {
                             </View>
 
                             <View style={{ marginBottom: 20 }}>
-                                <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Date & Time</Text>
+                                <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Date & Time (From)</Text>
                                 <TouchableOpacity
-                                    onPress={() => setShowDatePicker(true)}
+                                    onPress={() => setShowStartDatePicker(true)}
                                     style={{
                                         padding: 15,
                                         borderRadius: 5,
@@ -124,19 +215,49 @@ const CreateShift = ({ navigation }) => {
                                         backgroundColor: '#fff',
                                     }}
                                 >
-                                    <Text>{date.toString()}</Text>
+                                    <Text>{startDate.toString()}</Text>
                                 </TouchableOpacity>
-                                {showDatePicker && (
+                                {showStartDatePicker && (
                                     <DatePicker
                                         modal
-                                        open={showDatePicker}
-                                        date={date}
+                                        open={showStartDatePicker}
+                                        date={startDate}
                                         onConfirm={date => {
-                                            setShowDatePicker(false);
-                                            setDate(date);
+                                            setShowStartDatePicker(false);
+                                            setStartDate(date);
                                         }}
                                         onCancel={() => {
-                                            setShowDatePicker(false);
+                                            setShowStartDatePicker(false);
+                                        }}
+                                    />
+                                )}
+                            </View>
+
+                            <View style={{ marginBottom: 20 }}>
+                                <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Date & Time (To)</Text>
+                                <TouchableOpacity
+                                    onPress={() => setShowEndDatePicker(true)}
+                                    style={{
+                                        padding: 15,
+                                        borderRadius: 5,
+                                        borderWidth: 1,
+                                        borderColor: '#ccc',
+                                        backgroundColor: '#fff',
+                                    }}
+                                >
+                                    <Text>{endDate.toString()}</Text>
+                                </TouchableOpacity>
+                                {showEndDatePicker && (
+                                    <DatePicker
+                                        modal
+                                        open={showEndDatePicker}
+                                        date={endDate}
+                                        onConfirm={date => {
+                                            setShowEndDatePicker(false);
+                                            setEndDate(date);
+                                        }}
+                                        onCancel={() => {
+                                            setShowEndDatePicker(false);
                                         }}
                                     />
                                 )}
@@ -220,9 +341,9 @@ const CreateShift = ({ navigation }) => {
                             <Button
                                 mode="contained"
                                 onPress={handleSubmit}
-                                contentStyle={{ padding: "2%",  alignItems: 'center' }}
+                                contentStyle={{ padding: "2%", alignItems: 'center' }}
                             >
-                                Publish shift
+                                Publish Job
                             </Button>
                             <Button
                                 mode="outlined"
@@ -251,8 +372,7 @@ const CreateShift = ({ navigation }) => {
                     />
                     <FlatList
                         data={data?.projects}
-                        renderItem={({ item }) => <RenderItem item={item} />
-                        }
+                        renderItem={({ item }) => <RenderItem item={item} />}
                         ListEmptyComponent={() => (
                             <View style={{
                                 flex: 1,
@@ -261,11 +381,12 @@ const CreateShift = ({ navigation }) => {
                             }}>
                                 <Text>{isLoading ? 'Loading...' : 'No businesses found'}</Text>
                             </View>
-                        )} />
+                        )}
+                    />
                 </View>
             </Modal>
         </View>
     );
 };
 
-export default CreateShift;
+export default CreateJob;

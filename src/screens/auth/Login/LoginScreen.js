@@ -71,9 +71,9 @@ const LoginScreen = ({ navigation }) => {
           let screenTo = null;
 
           if (response.data?.user?.role === "freeflexer") {
-            screenTo = { name: "Main", params: { screen: "HomeStack", params: { screen: "FreeflexerHomeScreen" } } };
+            screenTo = { name: "Main", params: { screen: "FreeflexerStack", params: { screen: "FreeflexerHomeScreen" } } };
           } else if (response.data?.user?.role === "contractor") {
-            screenTo = { name: "Main", params: { screen: "HomeStack", params: { screen: "ContractorHomeScreen" } } };
+            screenTo = { name: "Main", params: { screen: "ContractorStack", params: { screen: "ContractorHomeScreen" } } };
           }
           navigation.replace(screenTo.name, screenTo.params);
 

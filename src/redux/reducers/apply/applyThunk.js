@@ -25,8 +25,8 @@ export const applyApi = createApi({
       }),
       invalidatesTags: ["Apply"],
     }),
-    getAllJobs: build.query({
-      query: filters => `/jobs/getAll?${filters}`,
+    getAllApplyForFreeflexer: build.query({
+      query: freeflexerId => `/apply/getAll/${freeflexerId}`,
       providesTags: ['Apply'],
     }),
     getJobDetails: build.query({
@@ -40,6 +40,6 @@ export const applyApi = createApi({
 
 export const {
   useCreateApplyMutation,
-  useGetAllJobsQuery,
+  useGetAllApplyForFreeflexerQuery,
   useGetJobDetailsQuery
 } = applyApi;

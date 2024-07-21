@@ -8,32 +8,33 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 const ContractorMenuIndex = ({ navigation }) => {
   const theme = useTheme();
 
+
   const menus = [
     {
       items: [
-        { title: "Create a shift", icon: "plus-circle-outline", navigateTo: "FreeflexerDashboard" },
-        { title: "Create a job", icon: "plus-circle-outline", navigateTo: "FreeflexerDashboard" }
+        // { title: "Create a shift", icon: "plus-circle-outline", navigateTo: "FreeflexerDashboard" },
+        { title: "Create a job", icon: "plus-circle-outline", navigateTo: "CreateShift" }
       ]
     },
     {
       sectionTitle: "HELP",
       items: [
-        { title: "Platform guide", icon: "clipboard-text-outline", navigateTo: "FreeflexerDashboard" },
-        { title: "Help", icon: "information-outline", navigateTo: "FreeflexerDashboard" },
-        { title: "Give feedback", icon: "chat-processing-outline", navigateTo: "FreeflexerDashboard" }
+        { title: "Platform guide", icon: "clipboard-text-outline", navigateTo: "ContractorDashboard" },
+        { title: "Help", icon: "information-outline", navigateTo: "ContractorDashboard" },
+        { title: "Give feedback", icon: "chat-processing-outline", navigateTo: "ContractorDashboard" }
       ]
     },
     {
       sectionTitle: "OTHER",
       items: [
-        { title: "Profile", icon: "account-outline", navigateTo: "FreeflexerDashboard" },
-        { title: "Companies", icon: "information-outline", navigateTo: "FreeflexerDashboard" },
-        { title: "Financial overview", icon: "chat-processing-outline", navigateTo: "FreeflexerDashboard" },
-        { title: "Statistics", icon: "chart-bar", navigateTo: "FreeflexerDashboard" },
-        { title: "Block FreeFlexers", icon: "account-multiple-remove-outline", navigateTo: "FreeflexerDashboard" },
-        { title: "UBD declaration", icon: "notebook-outline", navigateTo: "FreeflexerDashboard" },
-        { title: "Export shift overview", icon: "file-download-outline", navigateTo: "FreeflexerDashboard" },
-        { title: "Notifications", icon: "bell-outline", navigateTo: "FreeflexerDashboard" }
+        { title: "Profile", icon: "account-outline", navigateTo: "ContractorProfile" },
+        { title: "Businesses", icon: "information-outline", navigateTo: "ContractorBusinesese" },
+        // { title: "Financial overview", icon: "chat-processing-outline", navigateTo: "FreeflexerDashboard" },
+        // { title: "Statistics", icon: "chart-bar", navigateTo: "FreeflexerDashboard" },
+        { title: "Block FreeFlexers", icon: "account-multiple-remove-outline", navigateTo: "ContractorDashboard" },
+        { title: "UBD declaration", icon: "notebook-outline", navigateTo: "ContractorDashboard" },
+        { title: "Export shift overview", icon: "file-download-outline", navigateTo: "ContractorDashboard" },
+        { title: "Notifications", icon: "bell-outline", navigateTo: "ContractorDashboard" }
       ]
     }
   ]
