@@ -45,7 +45,11 @@ const AppStack = () => {
       <Stack.Screen
         name="FreeflexerDashboard"
         component={FreeflexerDashboardIndex}
-        options={{ headerShown: false }}
+        options={{
+          header: props => (
+            <GeneralAppbar title={'Dashboard'} {...props} />
+          )
+        }}
       />
       <Stack.Screen
         name="JobDetailsScreen"

@@ -130,7 +130,7 @@ const FreeflexerHomeScreen = ({ route }) => {
           ListHeaderComponent={() => (
             <View>
               <Text style={{ paddingHorizontal: "3%", paddingTop: "3%", color: theme.colors.placeholder }}>
-                {data?.pagination?.totalElements} jobs waiting for you
+                {data?.pagination?.totalElements ? `${data?.pagination?.totalElements} jobs waiting for you` : "No job till now"} 
               </Text>
             </View>
           )}

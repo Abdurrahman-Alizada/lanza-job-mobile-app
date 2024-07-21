@@ -12,8 +12,8 @@ const HomeScreenAppbar = ({ isMainScreen = true, greetingText = "Find your dream
   return (
     <Appbar.Header
       style={{ backgroundColor: theme.colors.background }}
-      // elevated={true}
-      >
+    // elevated={true}
+    >
       <StatusBar
         barStyle={isThemeDark ? 'light-content' : 'dark-content'}
         backgroundColor={theme.colors.background}
@@ -36,11 +36,16 @@ const HomeScreenAppbar = ({ isMainScreen = true, greetingText = "Find your dream
             isMainScreen &&
             <Text>Welcome, Jolia</Text>
           }
+          {/* <Appbar.Content title={greetingText} /> */}
+
           <Text style={{ fontSize: 16, fontWeight: "800" }}>{greetingText}</Text>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate("FreeflexerMenu")} style={{}}>
-          <Avatar.Icon icon={"account"} style={{ backgroundColor: theme.colors.background, borderWidth: 1, borderColor: theme.colors.onBackground }} size={40} />
-        </TouchableOpacity>
+
+        <IconButton
+          icon="menu"
+          size={30}
+          onPress={() => navigation.navigate("FreeflexerMenu")}
+        />
       </View>
     </Appbar.Header>
   );

@@ -35,7 +35,7 @@ const FreeflexerDashboardIndex = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <HomeScreenAppbar isMainScreen={false} greetingText="Dashboard" />
+      {/* <HomeScreenAppbar isMainScreen={false} greetingText="Dashboard" /> */}
       <ScrollView
         contentContainerStyle={{ padding: '5%', paddingVertical: "10%" }}
         refreshControl={

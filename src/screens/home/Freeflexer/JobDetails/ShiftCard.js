@@ -1,7 +1,7 @@
 import moment from 'moment';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Card, Checkbox, IconButton, useTheme } from 'react-native-paper';
+import { Card, Checkbox, useTheme } from 'react-native-paper';
 
 const ShiftCard = React.memo(({ shift, checked, onCheckboxPress }) => {
     const theme = useTheme();
@@ -18,12 +18,14 @@ const ShiftCard = React.memo(({ shift, checked, onCheckboxPress }) => {
           borderRadius: 5,
           padding: '3%',
         }}
+        onPress={() => onCheckboxPress(shift)}
+
       >
             <Card.Title
                 title={formatDate(shift.startTime)}
                 subtitle={`${formatTime(shift.startTime)} - ${formatTime(shift.endTime)}`}
                 left={(props) => (
-                    <Checkbox
+                    <Checkbox.Android
                         {...props}
                         status={checked ? 'checked' : 'unchecked'}
                         onPress={() => onCheckboxPress(shift)}
