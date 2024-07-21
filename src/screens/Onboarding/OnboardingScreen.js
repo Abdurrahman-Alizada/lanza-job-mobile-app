@@ -8,7 +8,7 @@ import {
   StatusBar,
   TouchableOpacity,
 } from 'react-native';
-import { useTheme, Text, Button, FAB } from 'react-native-paper';
+import { useTheme, Text, FAB } from 'react-native-paper';
 import { height, width } from '../../GlobalStyles';
 import slides from './SlidesData';
 import { useNavigation } from '@react-navigation/native';
@@ -223,7 +223,7 @@ const OnboardingScreen = () => {
           <FlatList
             ref={ref}
             onMomentumScrollEnd={updateCurrentSlideIndex}
-            contentContainerStyle={{ height: height * 0.75 }}
+            contentContainerStyle={{ height: height * 0.65 }}
             showsHorizontalScrollIndicator={false}
             horizontal
             data={slides}

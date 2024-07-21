@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, Checkbox, Button, IconButton, useTheme, Icon, RadioButton, Appbar } from 'react-native-paper';
-import { Slider } from '@rneui/themed';
+// import { Slider } from '@rneui/themed';
 
 const MainJobsFilterScreen = ({ navigation }) => {
     const theme = useTheme();
@@ -160,7 +160,7 @@ const MainJobsFilterScreen = ({ navigation }) => {
                             <Text style={{ color: theme.colors.placeholder }}>{distance} km</Text>
                         </View>
 
-                        <Slider
+                        {/* <Slider
                             value={distance}
                             maximumValue={100}
                             minimumValue={0}
@@ -170,7 +170,7 @@ const MainJobsFilterScreen = ({ navigation }) => {
                             maximumTrackTintColor={theme.colors.placeholder}
                             minimumTrackTintColor={theme.colors.primary}
                             onValueChange={(value) => setDistance(value)}
-                        />
+                        /> */}
 
                     </View>
                 </View>
@@ -201,7 +201,7 @@ const MainJobsFilterScreen = ({ navigation }) => {
                         </View>
 
 
-                        <Slider
+                        {/* <Slider
                             value={hourlyRate}
                             maximumValue={100}
                             minimumValue={0}
@@ -211,7 +211,7 @@ const MainJobsFilterScreen = ({ navigation }) => {
                             maximumTrackTintColor={theme.colors.placeholder}
                             minimumTrackTintColor={theme.colors.primary}
                             onValueChange={(value) => setHourlyRate(value)}
-                        />
+                        /> */}
 
                     </View>
                 </View>

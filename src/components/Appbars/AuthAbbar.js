@@ -51,7 +51,7 @@ export default function AuthAbbar({ title }) {
           />
         </View>
 
-        <View style={{ flexDirection: 'row', alignItems:"center" }}>
+        <View style={{width:"31%", flexDirection: 'row', alignItems:"center", justifyContent:"flex-end" }}>
           {isThemeDark ? (
             <IconButton
               icon="white-balance-sunny"
@@ -70,7 +70,7 @@ export default function AuthAbbar({ title }) {
               },
             });
           }}
-            style={{ marginHorizontal: '3%' }}
+            style={{ marginHorizontal: '2%' }}
           >
             <CountryFlag isoCode={currentLanguage === "en" ? 'gb' : currentLanguage} size={18} />
           </TouchableOpacity>

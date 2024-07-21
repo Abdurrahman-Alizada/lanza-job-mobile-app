@@ -1,10 +1,10 @@
 import { View, FlatList, RefreshControl } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import HomeScreenAppbar from '../../../components/Appbars/HomeScreenAppbar';
-import { Button, IconButton, useTheme, Searchbar, Avatar, Card, Text } from 'react-native-paper';
+import { Button, IconButton, useTheme, Searchbar, Avatar, Card, Text, ActivityIndicator } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useGetAllJobsQuery } from '../../../redux/reducers/jobs/jobThunk';
-import JobsCardsSkeleton from '../../../skeleton/JobsCards';
+// import JobsCardsSkeleton from '../../../skeleton/JobsCards';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
 
@@ -123,7 +123,8 @@ const FreeflexerHomeScreen = ({ route }) => {
         )}
       />
       {isLoading ? (
-        <JobsCardsSkeleton len={[1, 2, 3, 4]} />
+        <ActivityIndicator size={"large"} style={{marginTop:"5%"}} />
+        // <JobsCardsSkeleton len={[1, 2, 3, 4]} />
       ) : (
         <FlatList
           data={getFilteredJobs()} // Use the filtered list

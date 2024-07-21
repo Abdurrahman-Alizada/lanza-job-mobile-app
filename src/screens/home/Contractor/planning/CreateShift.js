@@ -135,7 +135,7 @@ const CreateJob = ({ navigation }) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     height: 150,
-                    backgroundColor: '#E0E0E0',
+                    backgroundColor: theme.colors.lightBackground,
                     borderRadius: 8,
                     marginBottom: 20
                 }} onPress={handleChooseLogo}>
@@ -148,9 +148,9 @@ const CreateJob = ({ navigation }) => {
                         }} />
                     ) : (
                         <Text style={{
-                            color: '#757575',
+                            color: theme.colors.onBackground,
                             fontSize: 18,
-                        }}>Upload Company logo</Text>
+                        }}>Upload Image</Text>
                     )}
                 </TouchableOpacity>
 
