@@ -37,7 +37,10 @@ export const businessApi = createApi({
       query: contractorId => `/userBusiness/getAll/${contractorId}`,
       providesTags: ['UserBusiness'],
     }),
-
+    getCurrentLoginUser: build.query({
+      query: () => `/user/currentLoginUser`,
+      providesTags: ['Business'],
+    }),
     searhBusiness: build.query({
       query: name => `/business/search?name=${name}`,
       providesTags: ['Business'],
@@ -49,5 +52,6 @@ export const {
   useCreateUserBusinessMutation,
   useUpdateUserBusinessMutation,
   useGetAllUserBusinessesQuery,
-  useSearhBusinessQuery
+  useSearhBusinessQuery,
+  useGetCurrentLoginUserQuery
 } = businessApi;

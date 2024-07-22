@@ -28,6 +28,7 @@ import {
 import {fontConfig} from './src/GlobalStyles';
 import {ThemeContext} from './src/themeContext';
 import WelcomeScreenIndex from './src/screens/WelcomeScreen/WelcomeScreenIndex';
+import { LogBox } from 'react-native';
 
 export const App = () => {
   const [isThemeDark, setIsThemeDark] = React.useState(false);
@@ -67,6 +68,8 @@ export const App = () => {
     }),
     [toggleTheme, isThemeDark],
   );
+
+  LogBox.ignoreLogs(['Sending `onAnimatedValueUpdate` with no listeners registered.']);
 
   return (
     <ThemeContext.Provider value={preferences}>

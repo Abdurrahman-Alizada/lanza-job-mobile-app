@@ -10,7 +10,7 @@ export default function GeneralAppbar({ navigation, back, title }) {
       {/* {back ? <Appbar.BackAction onPress={navigation.goBack} /> : null} */}
       <Appbar.BackAction onPress={()=>navigation?.goBack()} />
       {/* <Appbar.Content title={t(title)} /> */}
-      <Text style={{ fontSize: 16, fontWeight: "800" }}>{title}</Text>
+      <Text style={{ fontSize: 16, fontWeight: "800" }}>{t(title)}</Text>
    
     </Appbar.Header>
   );

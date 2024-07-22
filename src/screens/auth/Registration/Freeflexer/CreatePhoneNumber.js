@@ -36,7 +36,6 @@ export default function CreatePhoneNumber({ navigation }) {
                 actions.resetForm()
                 navigation.navigate("Address")
             }
-            console.log("first", res)
         })
         setIsLoading(false)
     };

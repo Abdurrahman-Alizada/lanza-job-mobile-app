@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, Checkbox, Button, IconButton, useTheme, Icon, RadioButton, Appbar } from 'react-native-paper';
 // import { Slider } from '@rneui/themed';
+import { CheckBox } from '@rneui/themed';
 
 const MainJobsFilterScreen = ({ navigation }) => {
     const theme = useTheme();
@@ -87,9 +88,12 @@ const MainJobsFilterScreen = ({ navigation }) => {
                         <TouchableOpacity
                             onPress={() => setSelectedApplicantsCount(count)}
                             key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                            <Checkbox
-                                status={selectedApplicantsCount === count ? 'checked' : 'unchecked'}
-                            />
+                             <CheckBox
+                                center
+                                containerStyle={{backgroundColor:theme.colors.lightgrey}}
+                                onPress={() => setSelectedApplicantsCount(count)}
+                             />
+
                             <View style={{ marginLeft: 8 }}>
                                 <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{count} applications</Text>
                                 <Text style={{ fontSize: 14, color: '#777' }}>Shifts with maximum {count} applicantions</Text>
@@ -104,9 +108,14 @@ const MainJobsFilterScreen = ({ navigation }) => {
                         onPress={() => handleTagToggle(tag.value)}
                         style={{ backgroundColor: theme.colors.lightgrey, padding: 15, borderRadius: 6, marginBottom: 25 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                            <Checkbox
-                                status={selectedTags.includes(tag.value) ? 'checked' : 'unchecked'}
-                            />
+                            
+                             <CheckBox
+                                center
+                                checked={selectedTags.includes(tag.value) ? true : false}
+                                containerStyle={{backgroundColor:theme.colors.lightgrey}}
+                                onPress={() => handleTagToggle(tag.value)}
+                             />
+
                             <View style={{ marginLeft: 8 }}>
                                 <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{tag.heading}</Text>
                                 <Text style={{ fontSize: 14, color: '#777' }}>{tag.description}</Text>

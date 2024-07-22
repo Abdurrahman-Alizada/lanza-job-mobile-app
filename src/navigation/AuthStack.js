@@ -15,12 +15,12 @@ import {
 
 } from '../screens/auth/Index';
 import ForgotPassword from '../screens/auth/ForgotPassword/ForgotPasswordScreen';
+import GeneralAppbar from '../components/Appbars/GeneralAppbar';
 const Stack = createStackNavigator();
 
 const AuthStack = () => {
   return (
     <Stack.Navigator initialRouteName="Login">
-
 
       <Stack.Screen
         name="Login"
@@ -101,7 +101,9 @@ const AuthStack = () => {
       <Stack.Screen
         name="ForgotPassword"
         options={{
-          title: 'Forgot password',
+          header: props => (
+            <GeneralAppbar title={'Forgot password'} {...props} />
+          ),
         }}
         component={ForgotPassword}
       />

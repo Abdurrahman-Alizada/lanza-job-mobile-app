@@ -19,7 +19,6 @@ const UpdateProject = ({ route }) => {
 
   const handleUpdateProject = (values) => {
     const updatedProject = { project: values, id: project._id }
-    console.log("first",updatedProject)
     updateProject(updatedProject).then((res) => {
       navigation.pop(2)
     })

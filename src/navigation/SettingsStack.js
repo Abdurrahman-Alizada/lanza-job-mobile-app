@@ -7,7 +7,7 @@ import LanguageIndex from '../screens/Settings/language/LanguageIndex';
 
 const AppStack = () => {
   return (
-    <Stack.Navigator >
+    <Stack.Navigator initialRouteName='ChooseLanguage'>
       <Stack.Screen
         name="ChooseLanguage"
         component={LanguageIndex}

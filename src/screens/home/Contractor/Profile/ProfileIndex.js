@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { View, ScrollView, TouchableOpacity,Modal } from 'react-native';
-import { Text, TextInput, Button, IconButton, useTheme, Avatar } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { View, ScrollView} from 'react-native';
+import { Text, TextInput, Button, IconButton, useTheme, Avatar, ActivityIndicator } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import DatePicker from 'react-native-date-picker';
+import { useGetCurrentLoginUserQuery } from '../../../../redux/reducers/businesses/businessThunk';
 
 const validationSchema = Yup.object().shape({
   fullName: Yup.string().required('*required').label('Full Name'),
@@ -18,22 +17,17 @@ const validationSchema = Yup.object().shape({
 
 const ContractorProfile = () => {
   const theme = useTheme();
-  const [date, setDate] = useState(new Date());
-  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 
-  const showDatePicker = () => {
-    setDatePickerVisible(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisible(false);
-  };
-
-  const handleConfirm = (date, setFieldValue) => {
-    setFieldValue('dateOfBirth', date.toLocaleDateString());
-    setDate(date);
-    hideDatePicker();
-  };
+  const {
+    data,
+    isError,
+    error,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useGetCurrentLoginUserQuery();
+  
+  console.log('User data:', data, error);
 
   const submitHandler = async (values, actions) => {
     console.log('Form values:', values);
@@ -42,7 +36,11 @@ const ContractorProfile = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <ScrollView contentContainerStyle={{ padding: '4%' }}>
+     {
+      isLoading ?
+      <ActivityIndicator size={"large"} />
+      :
+     <ScrollView contentContainerStyle={{ padding: '4%' }}>
         <View style={{ alignItems: 'center', marginBottom: "5%", }}>
           <Avatar.Image
             source={require('../../../../assets/profilepic.png')}
@@ -59,7 +57,7 @@ const ContractorProfile = () => {
         <Formik
           initialValues={{
             fullName: '',
-            email: '',
+            email: data?.user?.email,
             phoneNumber: '',
             dateOfBirth: '',
             aboutMe: '',
@@ -114,122 +112,6 @@ const ContractorProfile = () => {
                 <Text style={{ color: theme.colors.error }}>{errors.email}</Text>
               ) : null}
 
-              <Text style={{ fontWeight: 'bold', marginTop: 10 }}>Phone Number</Text>
-              <TextInput
-                placeholder="+44123456789"
-                mode="outlined"
-                style={{ marginTop: '2%' }}
-                outlineColor={theme.colors.lightgrey}
-                placeholderTextColor={theme.colors.placeholder}
-                dense
-                activeOutlineColor={theme.colors.secondary}
-                value={values.phoneNumber}
-                onChangeText={handleChange('phoneNumber')}
-                onBlur={handleBlur('phoneNumber')}
-              />
-              {errors.phoneNumber && touched.phoneNumber ? (
-                <Text style={{ color: theme.colors.error }}>{errors.phoneNumber}</Text>
-              ) : null}
-
-              <Text style={{ fontWeight: 'bold', marginTop: 10 }}>Date of Birth</Text>
-              <TouchableOpacity onPress={showDatePicker}>
-                <TextInput
-                  placeholder="01/01/2000"
-                  mode="outlined"
-                  style={{ marginTop: '2%' }}
-                  outlineColor={theme.colors.lightgrey}
-                  placeholderTextColor={theme.colors.placeholder}
-                  dense
-                  activeOutlineColor={theme.colors.secondary}
-                  value={values.dateOfBirth}
-                  editable={false}
-                  pointerEvents="none"
-                />
-              </TouchableOpacity>
-              {errors.dateOfBirth && touched.dateOfBirth ? (
-                <Text style={{ color: theme.colors.error }}>{errors.dateOfBirth}</Text>
-              ) : null}
-
-              <Modal
-                transparent={true}
-                animationType="slide"
-                visible={isDatePickerVisible}
-                onRequestClose={hideDatePicker}
-              >
-                <View style={{
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: 'rgba(0,0,0,0.5)',
-                }}>
-                  <View style={{
-                    backgroundColor: 'white',
-                    padding: 20,
-                    borderRadius: 10,
-                  }}>
-                    <IconButton onPress={hideDatePicker} style={{alignSelf:"flex-end"}} icon={"close"} />
-                    <DatePicker
-                      date={date}
-                      onDateChange={(newDate) => setDate(newDate)}
-                      mode="date"
-                    />
-
-                    <Button mode="contained" style={{margin:"3%"}} onPress={() => handleConfirm(date, setFieldValue)}>Confirm</Button>
-                  </View>
-                </View>
-              </Modal>
-
-              <Text style={{ fontWeight: 'bold', marginTop: 10 }}>About Me</Text>
-              <TextInput
-                placeholder="Student, Hospitality expert"
-                mode="outlined"
-                style={{ marginTop: '2%' }}
-                outlineColor={theme.colors.lightgrey}
-                placeholderTextColor={theme.colors.placeholder}
-                dense
-                activeOutlineColor={theme.colors.secondary}
-                value={values.aboutMe}
-                onChangeText={handleChange('aboutMe')}
-                onBlur={handleBlur('aboutMe')}
-              />
-              {errors.aboutMe && touched.aboutMe ? (
-                <Text style={{ color: theme.colors.error }}>{errors.aboutMe}</Text>
-              ) : null}
-
-              <Text style={{ fontWeight: 'bold', marginTop: 10 }}>Citizen Number</Text>
-              <TextInput
-                placeholder="123456789"
-                mode="outlined"
-                style={{ marginTop: '2%' }}
-                outlineColor={theme.colors.lightgrey}
-                placeholderTextColor={theme.colors.placeholder}
-                dense
-                activeOutlineColor={theme.colors.secondary}
-                value={values.citizenNumber}
-                onChangeText={handleChange('citizenNumber')}
-                onBlur={handleBlur('citizenNumber')}
-              />
-              {errors.citizenNumber && touched.citizenNumber ? (
-                <Text style={{ color: theme.colors.error }}>{errors.citizenNumber}</Text>
-              ) : null}
-
-              <Text style={{ fontWeight: 'bold', marginTop: 10 }}>Where do you live?</Text>
-              <TextInput
-                placeholder="xyz, street# 02, central london"
-                mode="outlined"
-                style={{ marginTop: '2%' }}
-                outlineColor={theme.colors.lightgrey}
-                placeholderTextColor={theme.colors.placeholder}
-                dense
-                activeOutlineColor={theme.colors.secondary}
-                value={values.address}
-                onChangeText={handleChange('address')}
-                onBlur={handleBlur('address')}
-              />
-              {errors.address && touched.address ? (
-                <Text style={{ color: theme.colors.error }}>{errors.address}</Text>
-              ) : null}
-
               <Button
                 onPress={handleSubmit}
                 style={{
@@ -244,6 +126,7 @@ const ContractorProfile = () => {
           )}
         </Formik>
       </ScrollView>
+     }
     </View>
   );
 };

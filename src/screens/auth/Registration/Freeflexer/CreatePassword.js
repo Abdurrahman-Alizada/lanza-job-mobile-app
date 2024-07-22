@@ -47,7 +47,6 @@ const LoginScreen = ({ navigation, route }) => {
                 actions.resetForm()
                 navigation.navigate("CreatePhoneNumber")
             }
-            console.log("first", res)
         })
         setIsLoading(false)
     };

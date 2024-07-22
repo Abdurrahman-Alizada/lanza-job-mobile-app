@@ -32,17 +32,15 @@ const ForgotPassword = ({ navigation }) => {
     setDisibility(true);
     forgotPassword(email)
       .then(res => {
-        if (res?.error?.data?.message) {
-          setMessage(res?.error?.data?.message);
+        console.log("first",res)
+        if(res?.data?.message === "Reset link sent to your email"){
+          setMessage(`An email has been sent to ${email}. Please check your inbox and reset your password from there.`);
           setVisible(true);
         } else if (res?.error?.error) {
           setMessage(res?.error?.error);
           setVisible(true);
-        } else if (res?.data?.message == `OTP has been sent to ${email}`) {
-          navigation.navigate("OTPScreen", { email: email });
-          setEmail('')
         } else {
-          setMessage("Unknown error");
+          setMessage("Something went wrong while sending email");
           setVisible(true);
         }
         setDisibility(false);
@@ -62,7 +60,7 @@ const ForgotPassword = ({ navigation }) => {
       }}>
       <Portal>
         <Dialog visible={visible} onDismiss={() => setVisible(false)}>
-          <Dialog.Title>Password recovery error</Dialog.Title>
+          <Dialog.Title>Password recovery</Dialog.Title>
           <Dialog.Content>
             <Paragraph> {message} </Paragraph>
           </Dialog.Content>
@@ -72,6 +70,10 @@ const ForgotPassword = ({ navigation }) => {
               onPress={() => setVisible(false)}>
               close
             </Button>
+            <Button onPress={() => {
+              setVisible(false)
+              navigation.goBack()
+            }}>Go back</Button>
             <Button onPress={() => {
               setVisible(false)
               sendEmail()
@@ -103,8 +105,7 @@ const ForgotPassword = ({ navigation }) => {
           loading={isLoading}
           contentStyle={{ padding: '2%' }}
           theme={{ roundness: 1 }}
-          // onPress={sendEmail}
-          onPress={()=>navigation.navigate("ResetPasswordScreen", { email: email })}
+          onPress={sendEmail}
         >
           Continue
         </Button>

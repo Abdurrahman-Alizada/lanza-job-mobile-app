@@ -83,7 +83,6 @@ const LoginScreen = ({ navigation }) => {
         setErrorMessage(response?.error?.data?.message);
         setVisible(true);
       }
-      console.log("first",response)
     } catch (err) {
       setErrorMessage('An unexpected error occurred');
       setVisible(true);
