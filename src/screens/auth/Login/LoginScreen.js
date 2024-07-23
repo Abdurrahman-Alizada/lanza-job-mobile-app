@@ -57,6 +57,7 @@ const LoginScreen = ({ navigation }) => {
         email: values.email,
         password: values.password,
       });
+      console.log("res is", response)
       if (response.data?.success) {
         if (response?.data?.user) {
           dispatch(handleRole(response.data?.user?.role));
@@ -78,6 +79,10 @@ const LoginScreen = ({ navigation }) => {
           navigation.replace(screenTo.name, screenTo.params);
 
           // navigation.navigate( response.data?.user?.role === "freeflexer" ? "FreeflexerHomeScreen" : "ContractorHomeScreen");
+        }
+        if(response?.data?.message){
+          setErrorMessage(response?.data?.message);
+          setVisible(true);
         }
       } else {
         setErrorMessage(response?.error?.data?.message);

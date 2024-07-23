@@ -13,7 +13,7 @@ const FreeflexerHomeScreen = ({ route }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const theme = useTheme();
   const navigation = useNavigation();
-
+console.log("first",route?.params?.filters)
   const {
     data,
     isError,

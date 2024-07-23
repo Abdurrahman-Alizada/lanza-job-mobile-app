@@ -13,13 +13,13 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigation } from '@react-navigation/native';
 import {
+  useRegisterContractorMutation,
   useRegisterUserMutation,
   useResendEmailForUserRegistrationMutation,
 } from '../../../../redux/reducers/user/userThunk';
 import AuthAppbar from "../../../../components/Appbars/AuthAbbar"; // Adjust import path as needed
 
 const validationSchema = Yup.object().shape({
-  companyName: Yup.string().label('Address line 2'),
   firstName: Yup.string().label('First name'),
   surName: Yup.string().label('Sur name'),
   email: Yup.string()
@@ -39,31 +39,22 @@ const ContractorSignupWithEmail = () => {
   const [message, setMessage] = useState('');
   const [showLoginButton, setShowLoginButton] = useState(false);
   const [showTryAgainButton, setShowTryAgainButton] = useState(false);
+  const [loading,setLoading] = useState(false)
   const emailRef = useRef('');
 
-  const [registerUser, { isLoading }] = useRegisterUserMutation();
+  const [registerUser, { isLoading }] = useRegisterContractorMutation();
   const [resendEmailForUserRegistration, { isLoading: resendLoading }] = useResendEmailForUserRegistrationMutation();
-
   const submitHandler = async (values, formikBag) => {
-
     emailRef.current = values.email;
+    setLoading(true)
     try {
       const res = await registerUser({
         email: values.email,
-        addressLine1: values.addressLine1,
-        addressLine2: values.addressLine2,
-        addressLine3: values.addressLine3,
-        postCode: values.postCode,
-        city: values.city,
         firstName: values.firstName,
         surName: values.surName,
+        password:values.password
       });
-      if (res.error?.status === 409) {
-        setMessage(res.error?.data?.message || 'Conflict');
-        setShowLoginButton(false);
-        setShowTryAgainButton(!res.error?.data?.verified);
-        setVisible(true);
-      } else if (res.data?.message === 'An Email sent to your account please verify') {
+      if (res.data?.message === 'Email has been sent for verification') {
         formikBag.resetForm();
         setMessage(`An Email sent to ${emailRef.current}. Please verify and then login`);
         setShowTryAgainButton(false);
@@ -75,6 +66,7 @@ const ContractorSignupWithEmail = () => {
         setMessage('Something went wrong');
         setVisible(true);
       }
+      setLoading(false)
     } catch (error) {
       console.error('Error during registration:', error);
     }
@@ -171,7 +163,7 @@ const ContractorSignupWithEmail = () => {
                 Sign up as a client
               </Text>
 
-              <Text style={{ fontWeight: '800', marginBottom: '2%' }}>Company name/Registration no </Text>
+              {/* <Text style={{ fontWeight: '800', marginBottom: '2%' }}>Company name/Registration no </Text>
               <TextInput
                 placeholder="Enter your email"
                 onChangeText={handleChange('email')}
@@ -181,7 +173,7 @@ const ContractorSignupWithEmail = () => {
                 style={{ height: 50 }}
                 outlineColor={theme.colors.secondary}
               />
-              {errors.companyName && touched.companyName && <Text style={{ color: 'red' }}>{errors.companyName}</Text>}
+              {errors.companyName && touched.companyName && <Text style={{ color: 'red' }}>{errors.companyName}</Text>} */}
 
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: "3%" }}>
                 <View style={{ width: '48%' }}>
@@ -248,22 +240,22 @@ const ContractorSignupWithEmail = () => {
               ) : null}
 
               <Button
-                loading={isLoading || resendLoading}
-                disabled={isLoading || resendLoading}
+                loading={isLoading || resendLoading || loading}
+                disabled={isLoading || resendLoading || loading}
                 style={{ marginTop: '8%' }}
                 contentStyle={{ padding: '2%' }}
                 theme={{ roundness: 1 }}
                 mode="contained"
-                // onPress={handleSubmit}
+                onPress={handleSubmit}
 
-                onPress={() =>
-                  navigation.navigate('Main', {
-                    screen: 'ContractorStack',
-                    params: {
-                      screen: 'ContractorTermsAndConditions',
-                    },
-                  })
-                }
+                // onPress={() =>
+                //   navigation.navigate('Main', {
+                //     screen: 'ContractorStack',
+                //     params: {
+                //       screen: 'ContractorTermsAndConditions',
+                //     },
+                //   })
+                // }
               >
                 Sign up
               </Button>
@@ -274,6 +266,7 @@ const ContractorSignupWithEmail = () => {
         <View style={{ marginVertical: '5%', alignItems: 'center' }}>
           <Button
             mode="text"
+            disabled={isLoading}
             onPress={() => navigation.navigate("Login")}
             labelStyle={{ color: '#3F51B5', fontWeight: 'bold' }}
           >

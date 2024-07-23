@@ -35,6 +35,20 @@ export const userApi = createApi({
       invalidatesTags: ['User'],
     }),
 
+    registerContractor: build.mutation({
+      query: user => ({
+        url: `/user/contractor/register`,
+        method: 'POST',
+        body: {
+          email: user.email,
+          password:user.password,
+          firstName: user.firstName,
+          surName: user.surName,
+        },
+      }),
+      invalidatesTags: ['User'],
+    }),
+
     loginUser: build.mutation({
       query: user => ({
         url: `/user/login`,
@@ -185,6 +199,7 @@ export const userApi = createApi({
 export const {
   useLoginUserMutation,
   useRegisterUserMutation,
+  useRegisterContractorMutation,
   useAddPasswordMutation,
   useUpdateNameMutation,
   useUpdateEmailMutation,

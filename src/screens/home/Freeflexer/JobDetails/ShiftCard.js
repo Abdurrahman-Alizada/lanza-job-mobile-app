@@ -1,3 +1,4 @@
+import { CheckBox } from '@rneui/themed';
 import moment from 'moment';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
@@ -11,28 +12,27 @@ const ShiftCard = React.memo(({ shift, checked, onCheckboxPress }) => {
 
     return (
         <Card
-        style={{
-          backgroundColor: theme.colors.lightgrey,
-          marginTop: 30,
-          marginHorizontal: 15,
-          borderRadius: 5,
-          padding: '3%',
-        }}
-        onPress={() => onCheckboxPress(shift)}
+            style={{
+                backgroundColor: theme.colors.lightgrey,
+                marginTop: 30,
+                marginHorizontal: 15,
+                borderRadius: 5,
+                padding: '3%',
+            }}
+            onPress={() => onCheckboxPress(shift)}
 
-      >
+        >
             <Card.Title
                 title={formatDate(shift.startTime)}
                 subtitle={`${formatTime(shift.startTime)} - ${formatTime(shift.endTime)}`}
-                left={(props) => (
-                    <Checkbox.Android
-                        {...props}
-                        status={checked ? 'checked' : 'unchecked'}
+                left={() => (
+                    <CheckBox
+                        center
+                        checked={checked ? true : false}
+                        containerStyle={{ height: 60, backgroundColor: theme.colors.lightgrey }}
                         onPress={() => onCheckboxPress(shift)}
-                        color={theme.colors.primary}
                     />
                 )}
-             
             />
             <View style={styles.divider} />
             <Text style={styles.description}>
