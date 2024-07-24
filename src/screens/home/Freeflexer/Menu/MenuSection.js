@@ -3,7 +3,6 @@ import * as React from 'react';
 import { List } from 'react-native-paper';
 
 const MenuSection = ({ sectionTitle, items }) => {
-    console.log("first", items)
     const navigation = useNavigation();
     return (
         <List.Section style={{}}>

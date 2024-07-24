@@ -63,7 +63,6 @@ const FreeflexerSignupWithEmail = () => {
       if (res.error) {
         setMessage(res.error?.data?.message || 'Registration error');
         setVisible(true);
-        console.log("first",res.error)
       } else if (res.data?.freeflexer) {
         setMessage("User created successfully");
         setShowProceedButton(true);
@@ -71,7 +70,6 @@ const FreeflexerSignupWithEmail = () => {
         resetForm()
         let user1 = res.data?.freeflexer
         user1.applicantId = res.data?.onfido?.id
-        console.log("first", user1)
         dispatch(handleCurrentLoaginUser(user1))
         AsyncStorage.setItem("userId", res.data?.freeflexer?.id)
         navigation.navigate("FreeflexerCreatePassword")

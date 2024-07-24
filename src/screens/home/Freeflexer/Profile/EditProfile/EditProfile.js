@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity,Modal } from 'react-native';
 import { Text, TextInput, Button, IconButton, useTheme, Avatar } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import GeneralAppbar from '../../../../../components/Appbars/GeneralAppbar';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import DatePicker from 'react-native-date-picker';
+import { useSelector } from 'react-redux';
+import { useGetAllUserBusinessesQuery, useGetCurrentLoginUserQuery } from '../../../../../redux/reducers/businesses/businessThunk';
 
 const validationSchema = Yup.object().shape({
   fullName: Yup.string().required('*required').label('Full Name'),
@@ -21,7 +21,6 @@ const EditProfile = () => {
   const theme = useTheme();
   const [date, setDate] = useState(new Date());
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
-  const navigation = useNavigation();
 
   const showDatePicker = () => {
     setDatePickerVisible(true);
@@ -36,6 +35,8 @@ const EditProfile = () => {
     setDate(date);
     hideDatePicker();
   };
+
+const {data, isLoading, error} = useGetCurrentLoginUserQuery()
 
   const submitHandler = async (values, actions) => {
     console.log('Form values:', values);
@@ -60,13 +61,8 @@ const EditProfile = () => {
 
         <Formik
           initialValues={{
-            fullName: '',
-            email: '',
-            phoneNumber: '',
-            dateOfBirth: '',
-            aboutMe: '',
-            citizenNumber: '',
-            address: '',
+            email: data?.user?.email,
+            address: data?.user?.address,
           }}
           validationSchema={validationSchema}
           onSubmit={(values, actions) => {

@@ -105,7 +105,7 @@ const CreateJob = ({ navigation }) => {
             noData: true,
         };
         launchImageLibrary(options, (response) => {
-            if (response.assets[0]?.uri) {
+            if (response?.assets) {
                 setLogo(response.assets[0]);
             }
         });
@@ -341,17 +341,18 @@ const CreateJob = ({ navigation }) => {
                             <Button
                                 mode="contained"
                                 onPress={handleSubmit}
-                                contentStyle={{ padding: "2%", alignItems: 'center' }}
+                                style={{marginBottom:"5%"}}
+                                contentStyle={{ padding: "2%", alignItems: 'center', }}
                             >
                                 Publish Job
                             </Button>
-                            <Button
+                            {/* <Button
                                 mode="outlined"
                                 onPress={() => navigation.goBack()}
                                 style={{ marginTop: 10, padding: "2%", borderRadius: 5, alignItems: 'center' }}
                             >
                                 Cancel
-                            </Button>
+                            </Button> */}
                         </View>
                     )}
                 </Formik>

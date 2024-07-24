@@ -86,7 +86,7 @@ const LanguageIndex = () => {
         paddingHorizontal: '4%',
         backgroundColor: theme.colors.background,
       }}>
-      <TextInput
+      {/* <TextInput
         label={t('Search for language')}
         mode="outlined"
         left={<TextInput.Icon icon={'magnify'} />}
@@ -98,7 +98,7 @@ const LanguageIndex = () => {
         }}
         style={{marginBottom: '4%'}}
         activeOutlineColor={theme.colors.secondary}
-      />
+        /> */}
 
       <RadioButton.Group
         onValueChange={newValue => changeLng(newValue)}

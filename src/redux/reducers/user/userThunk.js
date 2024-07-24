@@ -1,4 +1,3 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { baseURL } from '../../baseURL';
@@ -36,6 +35,20 @@ export const userApi = createApi({
       invalidatesTags: ['User'],
     }),
 
+    registerContractor: build.mutation({
+      query: user => ({
+        url: `/user/contractor/register`,
+        method: 'POST',
+        body: {
+          email: user.email,
+          password:user.password,
+          firstName: user.firstName,
+          surName: user.surName,
+        },
+      }),
+      invalidatesTags: ['User'],
+    }),
+
     loginUser: build.mutation({
       query: user => ({
         url: `/user/login`,
@@ -47,10 +60,10 @@ export const userApi = createApi({
       }),
       invalidatesTags: ['User'],
     }),
-    getCurrentLoginUser: build.query({
-      query: id => `/api/account/users/${id}`,
-      providesTags: ['User'],
-    }),
+    // getCurrentLoginUser: build.query({
+    //   query: () => `/user/currentLoginUser`,
+    //   providesTags: ['CurrentLoginUser'],
+    // }),
 
     // update user information - start
     addPassword: build.mutation({
@@ -146,11 +159,10 @@ export const userApi = createApi({
       }),
       invalidatesTags: ['User'],
     }),
-
     // forgot password
     forgotPassword: build.mutation({
       query: email => ({
-        url: `/api/account/user/forgotPassword`,
+        url: `/user/forgotPassword`,
         method: 'POST',
         body: {
           email: email,
@@ -187,9 +199,9 @@ export const userApi = createApi({
 export const {
   useLoginUserMutation,
   useRegisterUserMutation,
+  useRegisterContractorMutation,
   useAddPasswordMutation,
   useUpdateNameMutation,
-  useGetCurrentLoginUserQuery,
   useUpdateEmailMutation,
   useUpdatePasswordMutation,
   useUpdateImageURLMutation,

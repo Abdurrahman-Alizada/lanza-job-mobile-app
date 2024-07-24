@@ -51,7 +51,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
       coverLetter: "This is cover letter",
       shifts: checkedShifts // Adding selected shifts to the application
     }).then((src) => {
-      console.log("first",src)
       if (src?.data?.application) {
         dispatch(jobApi.util.invalidateTags(['JobDetails']));
         navigation.goBack();

@@ -24,7 +24,7 @@ import ContractorProfile from '../screens/home/Contractor/Profile/ProfileIndex';
 
 const AppStack = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName='ContractorHomeScreen' >
 
       <Stack.Screen
         name="ContractorHomeScreen"

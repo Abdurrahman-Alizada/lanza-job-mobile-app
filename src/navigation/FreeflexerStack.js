@@ -17,7 +17,7 @@ import FreeflexerMenuIndex from '../screens/home/Freeflexer/Menu/MenuIndex';
 
 const AppStack = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName='FreeflexerHomeScreen'>
 
       <Stack.Screen
         name="FreeflexerHomeScreen"

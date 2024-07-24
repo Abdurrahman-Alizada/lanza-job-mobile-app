@@ -57,6 +57,7 @@ const LoginScreen = ({ navigation }) => {
         email: values.email,
         password: values.password,
       });
+      console.log("res is", response)
       if (response.data?.success) {
         if (response?.data?.user) {
           dispatch(handleRole(response.data?.user?.role));
@@ -79,11 +80,14 @@ const LoginScreen = ({ navigation }) => {
 
           // navigation.navigate( response.data?.user?.role === "freeflexer" ? "FreeflexerHomeScreen" : "ContractorHomeScreen");
         }
+        if(response?.data?.message){
+          setErrorMessage(response?.data?.message);
+          setVisible(true);
+        }
       } else {
         setErrorMessage(response?.error?.data?.message);
         setVisible(true);
       }
-      console.log("first",response)
     } catch (err) {
       setErrorMessage('An unexpected error occurred');
       setVisible(true);
